@@ -3,32 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Financial Report</title>
+  <title>Generated Report</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 font-sans">
+<body class="bg-white font-sans text-gray-900">
 
-  <header class="bg-blue-600 text-white py-6">
-    <div class="container mx-auto text-center">
-      <h1 class="text-3xl font-bold">Generated Financial Report</h1>
-    </div>
+  <!-- Header -->
+  <header class="text-center py-10 border-b border-gray-200">
+    <h1 class="text-4xl font-semibold tracking-tight">Your Financial Report</h1>
   </header>
 
-  <main class="container mx-auto px-4 py-10">
-    <section class="bg-white p-8 rounded-lg shadow-md max-w-3xl mx-auto">
-      <div class="prose max-w-full">
-        {{ informe|safe }}
-      </div>
-      <a href="/" class="mt-6 inline-block text-blue-600 hover:underline">Back</a>
-    </section>
+  <!-- Hero Image -->
+  <section class="container mx-auto px-6 py-10 text-center">
+    <img src="{{ url_for('static', filename='image') }}" 
+         alt="Report Illustration" 
+         class="mx-auto w-full max-w-md">
+  </section>
+
+  <!-- Report Content -->
+  <main class="container mx-auto px-6 py-10">
+    <div class="prose max-w-none mx-auto">
+      {{ informe|safe }}
+    </div>
+    <div class="text-center mt-10">
+      <a href="/" class="text-black hover:underline font-medium">← Back to Home</a>
+    </div>
   </main>
 
-  <footer class="bg-gray-200 py-6 mt-10">
-    <div class="text-center text-gray-600">
-      © 2025 Financial Report Generator. All rights reserved.
-    </div>
+  <!-- Footer -->
+  <footer class="text-center text-gray-500 text-sm py-8">
+    © 2025 Financial Report Generator. All rights reserved.
   </footer>
 
 </body>
 </html>
-
