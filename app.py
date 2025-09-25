@@ -1,4 +1,4 @@
-from Flask import Flask, render_template, request
+from flask import Flask, render_template, request
 import tu_script  # importa tu código
 
 app = Flask(__name__)
