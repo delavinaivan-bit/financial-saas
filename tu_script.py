@@ -12,18 +12,21 @@ load_dotenv()
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # --- Añadimos esta función para evitar el error ---
+from youtube_transcript_api import YouTubeTranscriptApi, get_transcript
+
 def get_transcript(video_url):
     # extraer el ID del video de la URL
     if "v=" not in video_url:
         raise ValueError("URL de YouTube inválida")
     video_id = video_url.split("v=")[-1].split("&")[0]
     
-    # obtener la transcripción
-    transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
+    # obtener la transcripción usando el método correcto
+    transcript_list = get_transcript(video_id)
     
     # unir en un solo string
     transcript = " ".join([t['text'] for t in transcript_list])
     return transcript
+
 
 # --- TODO: copias TODO tu código de antes ---
 # Movemos la parte de main a una función
