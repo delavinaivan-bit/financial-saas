@@ -1,18 +1,70 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Financial Report Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <h1>Paste YouTube link</h1>
-  <form method="POST">
-    <input type="text" name="url" placeholder="YouTube link" required>
-    <select name="modo">
-      <option value="0">SHORT (~1500 words)</option>
-      <option value="1">LONG (~6000 words)</option>
-    </select>
-    <button type="submit">Generate Report</button>
-  </form>
-  <p>Subscribe for 10€/month: <a href="https://buy.stripe.com/5kQ8wPaaD7v29w8a5heEo00">Click here</a></p>
+<body class="bg-gray-50 font-sans">
+
+  <!-- Header -->
+  <header class="bg-blue-600 text-white py-6">
+    <div class="container mx-auto text-center">
+      <h1 class="text-3xl font-bold">Financial Report Generator</h1>
+      <p class="mt-2 text-lg">Turn YouTube videos into professional financial reports</p>
+    </div>
+  </header>
+
+  <!-- Form Section -->
+  <main class="container mx-auto px-4 py-10">
+    <section class="bg-white p-8 rounded-lg shadow-md max-w-2xl mx-auto">
+      <h2 class="text-2xl font-semibold mb-4">Paste your YouTube link</h2>
+      
+      <form method="POST" class="space-y-4">
+        <input 
+          type="text" 
+          name="url" 
+          placeholder="YouTube link" 
+          required
+          class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >
+        
+        <select 
+          name="modo"
+          class="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >
+          <option value="0">SHORT (~1500 words)</option>
+          <option value="1">LONG (~6000 words)</option>
+        </select>
+        
+        <button 
+          type="submit" 
+          class="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-700 transition"
+        >
+          Generate Report
+        </button>
+      </form>
+    </section>
+
+    <!-- Subscription Section -->
+    <section class="mt-10 text-center">
+      <h2 class="text-xl font-semibold mb-4">Subscribe for Full Access</h2>
+      <p class="mb-4">Get unlimited summaries and detailed insights for only €10/month</p>
+      <a href="https://buy.stripe.com/5kQ8wPaaD7v29w8a5heEo00" class="bg-green-500 text-white px-6 py-3 rounded hover:bg-green-600 transition inline-block">
+        Subscribe Now
+      </a>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-200 py-6 mt-10">
+    <div class="text-center text-gray-600">
+      © 2025 Financial Report Generator. All rights reserved.
+    </div>
+  </footer>
+
 </body>
 </html>
+
