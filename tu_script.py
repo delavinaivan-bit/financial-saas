@@ -12,7 +12,7 @@ load_dotenv()
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # --- Añadimos esta función para evitar el error ---
-from youtube_transcript_api import YouTubeTranscriptApi, get_transcript
+from youtube_transcript_api import YouTubeTranscriptApi
 
 def get_transcript(video_url):
     # extraer el ID del video de la URL
