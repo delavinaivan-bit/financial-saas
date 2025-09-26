@@ -79,13 +79,9 @@ def generar_resumen_y_titulos(articulo):
         return f"[Error al generar resumen: {str(e)}]"
 
 def mostrar_cargando():
-    import sys
+    # En Render, no hay terminal interactiva. Solo esperar.
     while not stop_anim.is_set():
-        for frame in "|/-\\":
-            sys.stdout.write(f"\rProcesando... {frame}")
-            sys.stdout.flush()
-            time.sleep(0.2)
-    sys.stdout.write("\rProcesamiento completado.     \n")
+        time.sleep(0.5)
 
 # --- Función principal ---
 def generar_informe_financiero(video_url, modo="0"):
