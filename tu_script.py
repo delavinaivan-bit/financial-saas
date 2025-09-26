@@ -5,7 +5,12 @@ import threading
 import re
 import traceback
 from dotenv import load_dotenv
+import youtube_transcript_api
 from youtube_transcript_api import YouTubeTranscriptApi
+
+print("🔍 YouTubeTranscriptApi path:", youtube_transcript_api.__file__)
+print("🔍 dir(YouTubeTranscriptApi):", dir(YouTubeTranscriptApi))
+
 import openai
 import tiktoken
 
