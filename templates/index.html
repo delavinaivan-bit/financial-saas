@@ -6,15 +6,13 @@
   <title>Financial Report Generator</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Hero video full screen */
     .hero-video {
       position: relative;
       width: 100%;
       height: 60vh;
       overflow: hidden;
-      border-bottom: 1px solid #e5e7eb; /* light gray */
+      border-bottom: 1px solid #e5e7eb;
     }
-
     .hero-video video {
       position: absolute;
       top: 0;
@@ -27,7 +25,6 @@
       object-fit: cover;
       z-index: -1;
     }
-
     .hero-overlay {
       position: absolute;
       top: 0;
@@ -59,16 +56,27 @@
 
   <!-- Form Section -->
   <main class="container mx-auto px-6 py-10 text-center">
-    <h2 class="text-2xl font-medium mb-6">Paste your YouTube link</h2>
+    <h2 class="text-2xl font-medium mb-4">Opción 1: Pega tu enlace de YouTube</h2>
+    <p class="text-gray-600 mb-4 text-sm">⚠️ Puede fallar por bloqueo de YouTube. Si falla, usa la Opción 2.</p>
 
     <form method="POST" class="max-w-lg mx-auto space-y-6">
       <input 
         type="text" 
         name="url" 
-        placeholder="Enter YouTube link" 
-        required
+        placeholder="https://youtube.com/watch?v=..."
         class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
       >
+
+      <h2 class="text-2xl font-medium mt-8 mb-4">Opción 2 (recomendada): Pega la transcripción directamente</h2>
+      <p class="text-gray-600 mb-2 text-sm">
+        Ve al video → haz clic en ⋮ → <strong>"Abrir transcripción"</strong> → copia todo y pégalo aquí.
+      </p>
+      <textarea 
+        name="transcript" 
+        placeholder="Pega aquí la transcripción completa del video..."
+        rows="6"
+        class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+      ></textarea>
 
       <select 
         name="modo"
