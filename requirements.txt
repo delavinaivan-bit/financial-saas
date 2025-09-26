@@ -1,6 +1,5 @@
 Flask
 python-dotenv
 openai>=1.0.0
-youtube-transcript-api>=1.2.2
 tiktoken
 requests
