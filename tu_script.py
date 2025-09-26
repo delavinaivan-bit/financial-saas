@@ -2,14 +2,10 @@
 import os
 import time
 import threading
-import re
-import traceback
-import requests
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# OpenAI
 try:
     from openai import OpenAI
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -17,81 +13,7 @@ except Exception as e:
     print("⚠️ OpenAI no disponible:", e)
     client = None
 
-# --- FUNCIÓN: Extraer transcripción usando requests (sin youtube-transcript-api) ---
-def get_transcript(video_url):
-    # Extraer video_id
-    patrones = [r"(?:v=)([a-zA-Z0-9_-]{11})", r"youtu\.be/([a-zA-Z0-9_-]{11})"]
-    video_id = None
-    for patron in patrones:
-        match = re.search(patron, video_url)
-        if match:
-            video_id = match.group(1)
-            break
-    if not video_id:
-        raise ValueError("URL de YouTube inválida")
-
-    # Paso 1: Obtener la página del video para extraer el `captions` JSON
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36'
-    }
-    try:
-        response = requests.get(f"https://www.youtube.com/watch?v={video_id}", headers=headers, timeout=10)
-        response.raise_for_status()
-    except Exception as e:
-        raise ValueError(f"No se pudo acceder al video: {e}")
-
-    # Paso 2: Buscar el JSON de configuración del reproductor
-    match = re.search(r'ytInitialPlayerResponse\s*=\s*({.*?})\s*;', response.text)
-    if not match:
-        raise ValueError("No se encontró la configuración del reproductor. El video podría ser privado.")
-
-    import json
-    try:
-        player_response = json.loads(match.group(1))
-    except json.JSONDecodeError:
-        raise ValueError("Error al analizar la configuración del video.")
-
-    # Paso 3: Buscar subtítulos
-    captions = player_response.get('captions', {}).get('playerCaptionsTracklistRenderer', {}).get('captionTracks', [])
-    if not captions:
-        raise ValueError("El video no tiene subtítulos públicos (ni automáticos ni manuales).")
-
-    # Preferir subtítulos en español o inglés
-    selected_caption = None
-    for caption in captions:
-        lang = caption.get('languageCode', '')
-        if lang in ['es', 'en']:
-            selected_caption = caption
-            break
-    if not selected_caption:
-        selected_caption = captions[0]  # tomar el primero
-
-    caption_url = selected_caption['baseUrl']
-
-    # Asegurar formato de texto plano
-    caption_url += "&fmt=json3"  # formato JSON limpio
-
-    # Paso 4: Descargar los subtítulos
-    try:
-        cap_response = requests.get(caption_url, headers=headers, timeout=10)
-        cap_response.raise_for_status()
-        cap_data = cap_response.json()
-    except Exception as e:
-        raise ValueError(f"No se pudieron descargar los subtítulos: {e}")
-
-    # Paso 5: Extraer texto
-    text_parts = []
-    for event in cap_data.get('events', []):
-        if 'segs' in event:
-            for seg in event['segs']:
-                if 'utf8' in seg:
-                    text_parts.append(seg['utf8'])
-    if not text_parts:
-        raise ValueError("Los subtítulos están vacíos o en formato no soportado.")
-
-    return " ".join(text_parts)
-
-# --- Resto del código (sin cambios) ---
+# --- FUNCIONES AUXILIARES ---
 def contar_palabras(texto):
     return len(texto.split())
 
@@ -140,12 +62,8 @@ def mostrar_cargando():
     while not getattr(mostrar_cargando, 'stop', False):
         time.sleep(0.5)
 
-def generar_informe_financiero(video_url, modo="0"):
-    try:
-        transcripcion = get_transcript(video_url)
-    except Exception as e:
-        raise ValueError(f"Fallo al obtener transcripción: {e}")
-
+# --- FUNCIÓN PRINCIPAL: desde texto (sin YouTube) ---
+def generar_informe_financiero_desde_texto(transcripcion, modo="0"):
     estilo_prompt = (
         "Write an EXTENSIVE blog article in your own expert voice. "
         "Do NOT reference the transcript, speakers, or video. "
@@ -194,4 +112,10 @@ def generar_informe_financiero(video_url, modo="0"):
         articulo +
         "\n\n### SUMMARY + TITLES ###\n\n" +
         resumen_y_titulos
+    )
+
+# --- FUNCIÓN ANTIGUA (solo por si acaso, pero NO se usará en Render) ---
+def generar_informe_financiero(video_url, modo="0"):
+    raise NotImplementedError(
+        "Esta función no funciona en Render. Usa 'generar_informe_financiero_desde_texto' con transcripción pegada."
     )
