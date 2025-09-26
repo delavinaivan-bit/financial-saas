@@ -20,10 +20,10 @@ except Exception as e:
 
 # --- Función para extraer transcripción (versión segura) ---
 def get_transcript(video_url):
-    # Importación LOCAL para evitar conflictos
     from youtube_transcript_api import YouTubeTranscriptApi
+    import re
 
-    # Extraer el ID del video
+    # Extraer ID
     patrones = [r"(?:v=)([a-zA-Z0-9_-]{11})", r"youtu\.be/([a-zA-Z0-9_-]{11})"]
     video_id = None
     for patron in patrones:
@@ -32,23 +32,19 @@ def get_transcript(video_url):
             video_id = match.group(1)
             break
     if not video_id:
-        raise ValueError("URL de YouTube inválida o no se pudo extraer el video_id.")
+        raise ValueError("URL de YouTube inválida")
 
     try:
-        # Usar la API moderna (list_transcripts) — requiere >=0.4.0, y tú usas >=1.2.2
-        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-        # Buscar en español o inglés
-        try:
-            transcript = transcript_list.find_transcript(['es', 'en']).fetch()
-        except:
-            # Si no encuentra, usar la primera disponible
-            transcript = next(transcript_list).fetch()
-        texto = " ".join([t['text'] for t in transcript])
-        return texto
+        # ✅ Esta función existe desde la v0.1.0
+        transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['es', 'en'])
+        return " ".join([t['text'] for t in transcript])
     except Exception as e:
-        print(f"❌ Error al obtener transcripción del video {video_id}: {e}")
-        traceback.print_exc()
-        raise ValueError(f"No se pudo obtener la transcripción: {e}")
+        # Intentar con cualquier idioma si falla
+        try:
+            transcript = YouTubeTranscriptApi.get_transcript(video_id)
+            return " ".join([t['text'] for t in transcript])
+        except Exception as e2:
+            raise ValueError(f"Transcripción no disponible: {e2}")
 
 # --- Funciones auxiliares ---
 def contar_palabras(texto):
