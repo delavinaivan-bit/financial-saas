@@ -1,29 +1,25 @@
 # tu_script.py
-# tu_script.py
 import os
 import time
 import threading
 import re
 import traceback
+import requests
 from dotenv import load_dotenv
 
-# Cargar variables de entorno
 load_dotenv()
 
-# Cliente de OpenAI
+# OpenAI
 try:
     from openai import OpenAI
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 except Exception as e:
-    print("⚠️ Error al inicializar OpenAI:", e)
+    print("⚠️ OpenAI no disponible:", e)
     client = None
 
-# --- Función para extraer transcripción (versión segura) ---
+# --- FUNCIÓN: Extraer transcripción usando requests (sin youtube-transcript-api) ---
 def get_transcript(video_url):
-    from youtube_transcript_api import YouTubeTranscriptApi
-    import re
-
-    # Extraer ID
+    # Extraer video_id
     patrones = [r"(?:v=)([a-zA-Z0-9_-]{11})", r"youtu\.be/([a-zA-Z0-9_-]{11})"]
     video_id = None
     for patron in patrones:
@@ -34,19 +30,68 @@ def get_transcript(video_url):
     if not video_id:
         raise ValueError("URL de YouTube inválida")
 
+    # Paso 1: Obtener la página del video para extraer el `captions` JSON
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36'
+    }
     try:
-        # ✅ Esta función existe desde la v0.1.0
-        transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['es', 'en'])
-        return " ".join([t['text'] for t in transcript])
+        response = requests.get(f"https://www.youtube.com/watch?v={video_id}", headers=headers, timeout=10)
+        response.raise_for_status()
     except Exception as e:
-        # Intentar con cualquier idioma si falla
-        try:
-            transcript = YouTubeTranscriptApi.get_transcript(video_id)
-            return " ".join([t['text'] for t in transcript])
-        except Exception as e2:
-            raise ValueError(f"Transcripción no disponible: {e2}")
+        raise ValueError(f"No se pudo acceder al video: {e}")
 
-# --- Funciones auxiliares ---
+    # Paso 2: Buscar el JSON de configuración del reproductor
+    match = re.search(r'ytInitialPlayerResponse\s*=\s*({.*?})\s*;', response.text)
+    if not match:
+        raise ValueError("No se encontró la configuración del reproductor. El video podría ser privado.")
+
+    import json
+    try:
+        player_response = json.loads(match.group(1))
+    except json.JSONDecodeError:
+        raise ValueError("Error al analizar la configuración del video.")
+
+    # Paso 3: Buscar subtítulos
+    captions = player_response.get('captions', {}).get('playerCaptionsTracklistRenderer', {}).get('captionTracks', [])
+    if not captions:
+        raise ValueError("El video no tiene subtítulos públicos (ni automáticos ni manuales).")
+
+    # Preferir subtítulos en español o inglés
+    selected_caption = None
+    for caption in captions:
+        lang = caption.get('languageCode', '')
+        if lang in ['es', 'en']:
+            selected_caption = caption
+            break
+    if not selected_caption:
+        selected_caption = captions[0]  # tomar el primero
+
+    caption_url = selected_caption['baseUrl']
+
+    # Asegurar formato de texto plano
+    caption_url += "&fmt=json3"  # formato JSON limpio
+
+    # Paso 4: Descargar los subtítulos
+    try:
+        cap_response = requests.get(caption_url, headers=headers, timeout=10)
+        cap_response.raise_for_status()
+        cap_data = cap_response.json()
+    except Exception as e:
+        raise ValueError(f"No se pudieron descargar los subtítulos: {e}")
+
+    # Paso 5: Extraer texto
+    text_parts = []
+    for event in cap_data.get('events', []):
+        if 'segs' in event:
+            for seg in event['segs']:
+                if 'utf8' in seg:
+                    text_parts.append(seg['utf8'])
+    if not text_parts:
+        raise ValueError("Los subtítulos están vacíos o en formato no soportado.")
+
+    return " ".join(text_parts)
+
+# --- Resto del código (sin cambios) ---
 def contar_palabras(texto):
     return len(texto.split())
 
@@ -71,7 +116,7 @@ def llamar_gpt(part_num, total, bloque, prompt_base):
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
-        return f"[Error en GPT para parte {part_num}: {str(e)}]"
+        return f"[Error en GPT parte {part_num}: {str(e)}]"
 
 def generar_resumen_y_titulos(articulo):
     if client is None:
@@ -89,14 +134,12 @@ def generar_resumen_y_titulos(articulo):
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
-        return f"[Error al generar resumen: {str(e)}]"
+        return f"[Error resumen: {str(e)}]"
 
 def mostrar_cargando():
-    # Solo para entornos con terminal; en Render no hace nada visible
     while not getattr(mostrar_cargando, 'stop', False):
         time.sleep(0.5)
 
-# --- Función principal ---
 def generar_informe_financiero(video_url, modo="0"):
     try:
         transcripcion = get_transcript(video_url)
@@ -114,7 +157,6 @@ def generar_informe_financiero(video_url, modo="0"):
     max_tokens = 5000 if modo == "0" else 3500
     bloques = dividir_transcripcion(transcripcion, max_tokens=max_tokens)
 
-    # Animación de carga (inofensiva en Render)
     mostrar_cargando.stop = False
     anim_thread = threading.Thread(target=mostrar_cargando, daemon=True)
     anim_thread.start()
@@ -126,7 +168,6 @@ def generar_informe_financiero(video_url, modo="0"):
 
     articulo = "\n\n".join(partes)
 
-    # Expandir si es necesario
     intentos = 0
     while contar_palabras(articulo) < min_palabras and intentos < 3:
         faltan = min_palabras - contar_palabras(articulo)
@@ -143,17 +184,14 @@ def generar_informe_financiero(video_url, modo="0"):
             articulo = "\n\n".join(partes)
             intentos = 0
 
-    # Detener animación
     mostrar_cargando.stop = True
     if anim_thread.is_alive():
         anim_thread.join(timeout=1)
 
     resumen_y_titulos = generar_resumen_y_titulos(articulo)
-    texto_final = (
+    return (
         "### FULL ARTICLE ###\n\n" +
         articulo +
         "\n\n### SUMMARY + TITLES ###\n\n" +
         resumen_y_titulos
     )
-
-    return texto_final
