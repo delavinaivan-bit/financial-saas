@@ -12,16 +12,13 @@ import re
 load_dotenv()
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def get_transcript(video_url):
-    """
-    Extrae el video_id de cualquier URL de YouTube y devuelve la transcripción como texto.
-    """
-    # Acepta links tipo youtube.com/watch?v=ID o youtu.be/ID
-    patrones = [
-        r"(?:v=)([a-zA-Z0-9_-]{11})",   # youtube.com/watch?v=VIDEOID
-        r"youtu\.be/([a-zA-Z0-9_-]{11})"  # youtu.be/VIDEOID
-    ]
+from youtube_transcript_api import YouTubeTranscriptApi
 
+def get_transcript(video_url):
+    patrones = [
+        r"(?:v=)([a-zA-Z0-9_-]{11})",
+        r"youtu\.be/([a-zA-Z0-9_-]{11})"
+    ]
     video_id = None
     for patron in patrones:
         match = re.search(patron, video_url)
@@ -32,10 +29,7 @@ def get_transcript(video_url):
     if not video_id:
         raise ValueError("URL de YouTube inválida o no se pudo extraer el video_id.")
 
-    # Descarga la transcripción
     transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=["en", "es"])
-
-    # Une todas las líneas en un solo texto
     texto = " ".join([entry["text"] for entry in transcript])
     return texto
 
