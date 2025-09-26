@@ -2,22 +2,20 @@
 import os
 import time
 import threading
+import re
+import traceback
 from dotenv import load_dotenv
 from youtube_transcript_api import YouTubeTranscriptApi
-from datetime import date
 import openai
 import tiktoken
-import re
 
+# Cargar variables de entorno
 load_dotenv()
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-from youtube_transcript_api import YouTubeTranscriptApi
-
+# --- Función para extraer transcripción ---
 def get_transcript(video_url):
-    import re
-    print("✅ Iniciando get_transcript con URL:", video_url)  # 👈 DEBUG
-
+    # Extraer el ID del video
     patrones = [r"(?:v=)([a-zA-Z0-9_-]{11})", r"youtu\.be/([a-zA-Z0-9_-]{11})"]
     video_id = None
     for patron in patrones:
@@ -28,26 +26,68 @@ def get_transcript(video_url):
     if not video_id:
         raise ValueError("URL de YouTube inválida o no se pudo extraer el video_id.")
 
-    print(f"✅ Video ID extraído: {video_id}")  # 👈 DEBUG
-
-    transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-    print("✅ Lista de transcripciones obtenida")  # 👈 DEBUG
-
+    # Usar la API moderna (list_transcripts)
     try:
+        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
         transcript = transcript_list.find_transcript(['en', 'es']).fetch()
-        print("✅ Transcripción obtenida en idioma soportado")  # 👈 DEBUG
+        texto = " ".join([t['text'] for t in transcript])
+        return texto
     except Exception as e:
-        print(f"❌ Error al obtener transcripción: {e}")
-        raise
+        raise ValueError(f"No se pudo obtener la transcripción: {e}")
 
-    texto = " ".join([t['text'] for t in transcript])
-    print(f"✅ Transcripción completa (primeros 100 caracteres): {texto[:100]}")
-    return texto
+# --- Funciones auxiliares (placeholder seguros) ---
+def contar_palabras(texto):
+    return len(texto.split())
 
+def dividir_transcripcion(texto, max_tokens=5000):
+    # Dividir por tamaño aproximado (1 token ≈ 0.75 palabras)
+    palabras = texto.split()
+    max_palabras = int(max_tokens * 0.75)
+    bloques = []
+    for i in range(0, len(palabras), max_palabras):
+        bloques.append(" ".join(palabras[i:i + max_palabras]))
+    return bloques
 
+def llamar_gpt(part_num, total, bloque, prompt_base):
+    # Simulación segura (reemplaza con tu lógica real de OpenAI)
+    full_prompt = f"{prompt_base}\n\nParte {part_num} de {total}:\n\n{bloque}"
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": full_prompt}],
+            max_tokens=1500,
+            temperature=0.7
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        return f"[Error en GPT para parte {part_num}: {str(e)}]"
 
-# --- TODO: copias TODO tu código de antes ---
-# Movemos la parte de main a una función
+def generar_resumen_y_titulos(articulo):
+    try:
+        res_prompt = (
+            "Resume el siguiente artículo en 3-5 oraciones. "
+            "Luego, sugiere 3 títulos atractivos para un blog financiero.\n\n"
+            + articulo[:10000]  # límite para evitar tokens excesivos
+        )
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": res_prompt}],
+            max_tokens=500
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        return f"[Error al generar resumen: {str(e)}]"
+
+def mostrar_cargando():
+    import sys
+    while not stop_anim.is_set():
+        for frame in "|/-\\":
+            sys.stdout.write(f"\rProcesando... {frame}")
+            sys.stdout.flush()
+            time.sleep(0.2)
+    sys.stdout.write("\rProcesamiento completado.     \n")
+
+# --- Función principal ---
 def generar_informe_financiero(video_url, modo="0"):
     global stop_anim
     stop_anim = threading.Event()
@@ -63,6 +103,7 @@ def generar_informe_financiero(video_url, modo="0"):
     min_palabras = 1500 if modo == "0" else 6000
     bloques = dividir_transcripcion(transcripcion, max_tokens=5000 if modo == "0" else 3500)
 
+    # Iniciar animación (solo en consola, no visible en Render, pero inofensiva)
     anim_thread = threading.Thread(target=mostrar_cargando)
     anim_thread.start()
 
@@ -90,7 +131,7 @@ def generar_informe_financiero(video_url, modo="0"):
             intentos = 0
 
     stop_anim.set()
-    anim_thread.join()
+    anim_thread.join(timeout=1)
 
     resumen_y_titulos = generar_resumen_y_titulos(articulo)
     texto_final = (
