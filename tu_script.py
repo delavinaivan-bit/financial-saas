@@ -7,6 +7,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from datetime import date
 import openai
 import tiktoken
+import re
 
 load_dotenv()
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -15,17 +16,31 @@ client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 from youtube_transcript_api import YouTubeTranscriptApi
 
 def get_transcript(video_url):
-    # extraer el ID del video de la URL
-    if "v=" not in video_url:
-        raise ValueError("URL de YouTube inválida")
-    video_id = video_url.split("v=")[-1].split("&")[0]
-    
-    # obtener la transcripción usando el método correcto
-    transcript_list = get_transcript(video_id)
-    
-    # unir en un solo string
-    transcript = " ".join([t['text'] for t in transcript_list])
-    return transcript
+    """
+    Extrae el video_id de cualquier URL de YouTube y devuelve la transcripción como texto.
+    """
+    # Acepta links tipo youtube.com/watch?v=ID o youtu.be/ID
+    patrones = [
+        r"(?:v=)([a-zA-Z0-9_-]{11})",   # youtube.com/watch?v=VIDEOID
+        r"youtu\.be/([a-zA-Z0-9_-]{11})"  # youtu.be/VIDEOID
+    ]
+
+    video_id = None
+    for patron in patrones:
+        match = re.search(patron, video_url)
+        if match:
+            video_id = match.group(1)
+            break
+
+    if not video_id:
+        raise ValueError("URL de YouTube inválida o no se pudo extraer el video_id.")
+
+    # Descarga la transcripción
+    transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=["en", "es"])
+
+    # Une todas las líneas en un solo texto
+    texto = " ".join([entry["text"] for entry in transcript])
+    return texto
 
 
 # --- TODO: copias TODO tu código de antes ---
