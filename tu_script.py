@@ -16,6 +16,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 
 def get_transcript(video_url):
     import re
+    # Extraer el ID del video
     patrones = [r"(?:v=)([a-zA-Z0-9_-]{11})", r"youtu\.be/([a-zA-Z0-9_-]{11})"]
     video_id = None
     for patron in patrones:
@@ -25,11 +26,14 @@ def get_transcript(video_url):
             break
     if not video_id:
         raise ValueError("URL de YouTube inválida o no se pudo extraer el video_id.")
-    
-    # ESTE es el método correcto para la versión moderna
-    transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
-    texto = " ".join([entry["text"] for entry in transcript_list])
+
+    # Esto es lo que cambia respecto a tu script
+    transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+    # Selecciona el idioma que quieres si existe
+    transcript = transcript_list.find_transcript(['en', 'es']).fetch()
+    texto = " ".join([t['text'] for t in transcript])
     return texto
+
 
 
 # --- TODO: copias TODO tu código de antes ---
