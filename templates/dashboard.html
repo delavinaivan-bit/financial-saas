@@ -1,31 +1,46 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard - Financial SaaS</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/dist/tailwind.min.css" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+</style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <nav class="bg-white shadow-md p-4 flex justify-between">
-    <h1 class="text-xl font-bold">Financial Report Generator</h1>
-    <a href="{{ url_for('logout') }}" class="text-blue-500 hover:underline">Logout</a>
-  </nav>
-  <main class="p-6 max-w-3xl mx-auto">
-    <h2 class="text-2xl font-semibold mb-4">Paste your transcript below:</h2>
-    <form method="post" class="space-y-4">
-      <textarea name="transcript" rows="10" required
-                class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
-      <select name="modo" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-        <option value="0">Modo básico</option>
-        <option value="1">Modo avanzado</option>
+<body class="bg-white text-gray-900 min-h-screen flex flex-col items-center">
+
+<header class="w-full max-w-2xl mt-12 mb-6 text-center">
+  <h1 class="text-2xl font-semibold">Welcome, {{ current_user.email }}</h1>
+  <a href="{{ url_for('logout') }}" class="text-gray-500 underline text-sm">Logout</a>
+</header>
+
+<main class="w-full max-w-2xl px-6">
+  {% if current_user.subscription_status != 'active' %}
+    <div class="text-center border p-6 rounded bg-gray-50">
+      <p class="mb-4">You need an active subscription to generate reports.</p>
+      <form action="{{ url_for('create_checkout_session') }}" method="POST">
+        <button type="submit" class="px-6 py-3 bg-black text-white rounded font-medium">Subscribe Now</button>
+      </form>
+    </div>
+  {% else %}
+    <form method="POST" class="space-y-4">
+      <textarea name="transcript" placeholder="Paste transcript here..." rows="8" required
+        class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-black"></textarea>
+      <select name="modo" class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-black">
+        <option value="0">Short (~1500 words)</option>
+        <option value="1">Long (~6000 words)</option>
       </select>
-      <button type="submit"
-              class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition">Generate Report</button>
+      <button type="submit" class="w-full py-3 bg-black text-white rounded font-medium">Generate Report</button>
     </form>
-  </main>
+  {% endif %}
+</main>
+
 </body>
 </html>
+
+
 
 
 
