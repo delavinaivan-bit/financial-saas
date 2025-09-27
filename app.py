@@ -6,6 +6,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from werkzeug.security import generate_password_hash, check_password_hash
 import stripe
 import tu_script  # script de generación y envío de emails
+import markdown
 
 # ---------- CONFIG ----------
 app = Flask(__name__)
@@ -79,15 +80,24 @@ def logout():
 def dashboard():
     if current_user.subscription_status != 'active':
         # Usuario sin suscripción → mostrar pantalla de pago
-        return render_template('subscribe_prompt.html', publishable_key=os.environ.get('STRIPE_PUBLISHABLE_KEY'))
+        return render_template(
+            'subscribe_prompt.html',
+            publishable_key=os.environ.get('STRIPE_PUBLISHABLE_KEY')
+        )
 
     if request.method == 'POST':
         transcript_text = request.form.get('transcript')
         modo = request.form.get('modo', '0')
-        informe = tu_script.generar_informe_financiero_desde_texto(transcript_text, modo)
-        return render_template('result.html', informe=informe)
+        informe_md = tu_script.generar_informe_financiero_desde_texto(transcript_text, modo)
+
+        # ✅ convertir aquí de Markdown a HTML
+        informe_html = markdown.markdown(informe_md, extensions=['extra'])
+
+        # ✅ pasamos HTML limpio al template
+        return render_template('result.html', informe=informe_html)
 
     return render_template('dashboard.html')
+
 
 # ---------- STRIPE CHECKOUT ----------
 @app.route('/create-checkout-session', methods=['POST'])
