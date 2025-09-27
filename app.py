@@ -102,7 +102,7 @@ def create_checkout_session():
             db.session.commit()
         session = stripe.checkout.Session.create(
             customer=current_user.stripe_customer_id,
-            success_url=domain + url_for('success') + '?session_id={CHECKOUT_SESSION_ID}',
+            success_url=domain + url_for('dashboard'),
             cancel_url=domain + url_for('dashboard'),
             payment_method_types=['card'],
             mode='subscription',
