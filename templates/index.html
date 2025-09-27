@@ -3,35 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Financial Report Generator - Login</title>
+  <title>Paste Transcript</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Hero video on dashboard page */
+    .hero-video {
+      position: relative;
+      width: 100%;
+      height: 40vh;
+      overflow: hidden;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .hero-video video {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      transform: translateX(-50%);
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.2);
+    }
+  </style>
 </head>
-<body class="bg-white font-sans text-gray-900 flex items-center justify-center min-h-screen">
-  <div class="w-full max-w-md p-8 border rounded-xl shadow-lg">
-    <h1 class="text-3xl font-semibold text-center mb-6">Financial Report Generator</h1>
 
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div class="mb-4 text-red-500 text-sm">
-          {% for msg in messages %}{{ msg }}<br>{% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
+<body class="bg-white font-sans text-gray-900">
 
-    <!-- Login Form -->
-    <form method="POST" action="{{ url_for('login') }}" class="space-y-4">
-      <input type="email" name="email" placeholder="Email" required
-        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-black">
-      <input type="password" name="password" placeholder="Password" required
-        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-black">
-      <button type="submit" class="w-full py-3 bg-black text-white rounded-lg hover:bg-gray-800">
-        Log In
-      </button>
-    </form>
+  <!-- Header -->
+  <header class="text-center py-6">
+    <h1 class="text-5xl md:text-6xl font-semibold tracking-tight leading-tight">
+      Financial Report Generator
+    </h1>
+  </header>
 
-    <p class="text-center mt-4 text-gray-600 text-sm">Don't have an account? 
-      <a href="{{ url_for('register') }}" class="text-black font-medium hover:underline">Register</a>
-    </p>
-  </div>
+  <!-- Hero Video -->
+  <section class="hero-video">
+    <video autoplay muted playsinline loop>
+      <source src="{{ url_for('static', filename='video.mp4') }}" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <div class="hero-overlay"></div>
+  </section>
+
+  <!-- Transcript Form -->
+  <main class="container mx-auto px-6 py-10">
+    <div class="max-w-3xl mx-auto bg-white p-6 rounded-2xl shadow-md">
+      <h2 class="text-2xl font-semibold text-center mb-6">Paste your transcript below</h2>
+      <form action="/dashboard" method="POST" class="space-y-4">
+        <textarea name="transcript" rows="12" required
+                  class="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-black focus:border-black"
+                  placeholder="Paste your transcript here..."></textarea>
+        <select name="modo" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-black focus:border-black">
+          <option value="0">Summary Mode</option>
+          <option value="1">Detailed Mode</option>
+        </select>
+        <button type="submit"
+                class="w-full py-3 px-4 bg-black text-white font-medium rounded-lg shadow hover:bg-gray-800">
+          Generate Report
+        </button>
+      </form>
+    </div>
+
+    <!-- Footer Link -->
+    <div class="text-center mt-10">
+      <a href="/" class="text-black hover:underline font-medium">← Back to Home</a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-gray-500 text-sm py-8">
+    © 2025 Financial Report Generator. All rights reserved.
+  </footer>
+
 </body>
 </html>
+
