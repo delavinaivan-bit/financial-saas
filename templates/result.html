@@ -6,7 +6,6 @@
   <title>Generated Report</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Hero video on report page */
     .hero-video {
       position: relative;
       width: 100%;
@@ -14,7 +13,6 @@
       overflow: hidden;
       border-bottom: 1px solid #e5e7eb;
     }
-
     .hero-video video {
       position: absolute;
       top: 0;
@@ -27,7 +25,6 @@
       object-fit: cover;
       z-index: -1;
     }
-
     .hero-overlay {
       position: absolute;
       top: 0;
@@ -38,7 +35,6 @@
     }
   </style>
 </head>
-
 <body class="bg-white font-sans text-gray-900">
 
   <!-- Header -->
@@ -60,7 +56,7 @@
   <!-- Report Content -->
   <main class="container mx-auto px-6 py-10">
     <div class="prose max-w-none mx-auto bg-white p-6 rounded-2xl shadow-md">
-      {{ informe|safe }}
+      {{ informe|replace('\n','<br>')|safe }}
     </div>
 
     <!-- Email Form -->
@@ -69,22 +65,19 @@
       <form action="/send_email" method="POST" class="space-y-4">
         <input type="hidden" name="informe" value="{{ informe }}">
         <div>
-          <label for="email" class="block text-sm font-medium text-gray-700">
-            Recipient email:
-          </label>
+          <label for="email" class="block text-sm font-medium text-gray-700">Recipient email:</label>
           <input type="email" id="email" name="email" required
-                 class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-black focus:border-black">
+            class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-black focus:border-black">
         </div>
         <button type="submit"
-                class="w-full py-2 px-4 bg-black text-white font-medium rounded-lg shadow hover:bg-gray-800">
+          class="w-full py-2 px-4 bg-black text-white font-medium rounded-lg shadow hover:bg-gray-800">
           Send Report
         </button>
       </form>
     </div>
 
-    <!-- Back Link -->
     <div class="text-center mt-10">
-      <a href="/" class="text-black hover:underline font-medium">← Back to Home</a>
+      <a href="/dashboard" class="text-black hover:underline font-medium">← Back to Dashboard</a>
     </div>
   </main>
 
@@ -95,3 +88,4 @@
 
 </body>
 </html>
+
