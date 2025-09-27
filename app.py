@@ -163,33 +163,24 @@ def index():
     return redirect(url_for('login'))
 
 # ---------- SEND EMAIL ----------
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
-
 @app.route('/send_email', methods=['POST'])
 @login_required
-def send_email():
+def send_email_route():
+    if current_user.subscription_status != 'active':
+        return "<h2>Subscription required</h2>", 403
+    
+    destinatario = request.form.get('email')  # <-- ahora coge del formulario
     informe = request.form.get('informe')
-    destinatario = current_user.email  # el email del usuario logueado
 
-    message = Mail(
-        from_email="tucorreo@ejemplo.com",  # tiene que estar verificado en SendGrid
-        to_emails=destinatario,
-        subject="Tu informe financiero",
-        plain_text_content=informe,
-        html_content=f"<pre>{informe}</pre>"
-    )
+    if not destinatario:
+        return "<h2>Error: missing recipient email</h2>", 400
 
     try:
-        sg = SendGridAPIClient(os.environ.get("SENDGRID_API_KEY"))
-        response = sg.send(message)
-        flash("✅ Email enviado correctamente", "success")
-        print(response.status_code)
+        tu_script.enviar_email(destinatario, "Your Financial Report", informe)
+        return "<h2>Sent ✅</h2>"
     except Exception as e:
-        flash("❌ Error al enviar email", "danger")
-        print(str(e))
+        return f"<h2>Error sending email: {str(e)}</h2>", 500
 
-    return redirect(url_for("dashboard"))
 
 
 # ---------- MAIN ----------
