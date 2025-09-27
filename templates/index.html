@@ -42,7 +42,7 @@
     <h1 class="text-5xl md:text-6xl font-semibold tracking-tight leading-tight">
       Financial Report Generator
     </h1>
-    <p class="mt-2 text-lg text-gray-600">Transform YouTube videos into professional reports</p>
+    <p class="mt-2 text-lg text-gray-600">Transform your transcripts into professional financial reports</p>
   </header>
 
   <!-- Hero Video -->
@@ -56,26 +56,18 @@
 
   <!-- Form Section -->
   <main class="container mx-auto px-6 py-10 text-center">
-    <h2 class="text-2xl font-medium mb-4">Opción 1: Pega tu enlace de YouTube</h2>
-    <p class="text-gray-600 mb-4 text-sm">⚠️ Puede fallar por bloqueo de YouTube. Si falla, usa la Opción 2.</p>
+    <h2 class="text-2xl font-medium mb-4">Paste the full transcript here</h2>
+    <p class="text-gray-600 mb-4 text-sm">
+      Go to the video → click ⋮ → "Open transcript" → copy all text and paste it here.
+    </p>
 
     <form method="POST" class="max-w-lg mx-auto space-y-6">
-      <input 
-        type="text" 
-        name="url" 
-        placeholder="https://youtube.com/watch?v=..."
-        class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-      >
-
-      <h2 class="text-2xl font-medium mt-8 mb-4">Opción 2 (recomendada): Pega la transcripción directamente</h2>
-      <p class="text-gray-600 mb-2 text-sm">
-        Ve al video → haz clic en ⋮ → <strong>"Abrir transcripción"</strong> → copia todo y pégalo aquí.
-      </p>
       <textarea 
         name="transcript" 
-        placeholder="Pega aquí la transcripción completa del video..."
-        rows="6"
+        placeholder="Paste the full transcript here..."
+        rows="8"
         class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+        required
       ></textarea>
 
       <select 
