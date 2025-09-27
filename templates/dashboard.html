@@ -6,7 +6,6 @@
   <title>Paste Transcript</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Hero video on dashboard page */
     .hero-video {
       position: relative;
       width: 100%;
@@ -14,7 +13,6 @@
       overflow: hidden;
       border-bottom: 1px solid #e5e7eb;
     }
-
     .hero-video video {
       position: absolute;
       top: 0;
@@ -27,7 +25,6 @@
       object-fit: cover;
       z-index: -1;
     }
-
     .hero-overlay {
       position: absolute;
       top: 0;
@@ -38,7 +35,6 @@
     }
   </style>
 </head>
-
 <body class="bg-white font-sans text-gray-900">
 
   <!-- Header -->
@@ -50,7 +46,7 @@
 
   <!-- Hero Video -->
   <section class="hero-video">
-    <video autoplay muted playsinline loop>
+    <video id="heroVideo" autoplay muted playsinline>
       <source src="{{ url_for('static', filename='video.mp4') }}" type="video/mp4">
       Your browser does not support the video tag.
     </video>
@@ -61,7 +57,7 @@
   <main class="container mx-auto px-6 py-10">
     <div class="max-w-3xl mx-auto bg-white p-6 rounded-2xl shadow-md">
       <h2 class="text-2xl font-semibold text-center mb-6">Paste your transcript below</h2>
-      <form action="/dashboard" method="POST" class="space-y-4">
+      <form id="transcriptForm" action="/dashboard" method="POST" class="space-y-4">
         <textarea name="transcript" rows="12" required
                   class="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-black focus:border-black"
                   placeholder="Paste your transcript here..."></textarea>
@@ -69,14 +65,14 @@
           <option value="0">Summary Mode</option>
           <option value="1">Detailed Mode</option>
         </select>
-        <button type="submit"
+        <button type="submit" id="generateBtn"
                 class="w-full py-3 px-4 bg-black text-white font-medium rounded-lg shadow hover:bg-gray-800">
           Generate Report
         </button>
       </form>
+      <p id="loadingMessage" style="display:none; text-align:center; margin-top:10px; font-weight:bold;">Preparando...</p>
     </div>
 
-    <!-- Footer Link -->
     <div class="text-center mt-10">
       <a href="/" class="text-black hover:underline font-medium">← Back to Home</a>
     </div>
@@ -87,8 +83,26 @@
     © 2025 Financial Report Generator. All rights reserved.
   </footer>
 
+  <script>
+    // Video solo una vez
+    const video = document.getElementById('heroVideo');
+    video.loop = false;
+
+    // Formulario "Preparando..."
+    const form = document.getElementById('transcriptForm');
+    const loading = document.getElementById('loadingMessage');
+    const btn = document.getElementById('generateBtn');
+
+    form.addEventListener('submit', () => {
+      loading.style.display = 'block';
+      btn.disabled = true; 
+      btn.innerText = 'Procesando...';
+    });
+  </script>
 </body>
 </html>
+
+
 
 
 
