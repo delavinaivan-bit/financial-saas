@@ -1,26 +1,34 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>Login - Financial SaaS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-white flex items-center justify-center h-screen font-sans">
-  <div class="w-full max-w-sm p-8 bg-white shadow-md rounded-xl">
-    <h1 class="text-2xl font-semibold mb-6 text-center">Login</h1>
-    <form method="POST" class="space-y-4">
+<body class="bg-gray-50 flex items-center justify-center h-screen">
+  <div class="bg-white p-10 rounded-xl shadow-md w-full max-w-md">
+    <h1 class="text-2xl font-bold mb-6 text-center">Login</h1>
+    <form action="{{ url_for('login') }}" method="post" class="space-y-4">
       <input type="email" name="email" placeholder="Email" required
-        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black">
+             class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
       <input type="password" name="password" placeholder="Password" required
-        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black">
-      <button type="submit" class="w-full py-3 bg-black text-white rounded-lg hover:bg-gray-800">
-        Login
-      </button>
+             class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+      <button type="submit"
+              class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition">Login</button>
     </form>
-    <p class="mt-4 text-center text-gray-500 text-sm">
-      Don't have an account? <a href="{{ url_for('register') }}" class="text-black underline">Register</a>
-    </p>
+    <p class="mt-4 text-center text-gray-600">No account? <a href="{{ url_for('register') }}" class="text-blue-500 hover:underline">Register</a></p>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="mt-4 text-red-500 text-center">
+          {% for msg in messages %}
+            {{ msg }}
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
   </div>
 </body>
 </html>
+
+
