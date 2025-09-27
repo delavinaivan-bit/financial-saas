@@ -5,6 +5,9 @@ import threading
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 import markdown  # pip install markdown
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 load_dotenv()
 
@@ -64,6 +67,27 @@ def mostrar_cargando():
     while not getattr(mostrar_cargando, 'stop', False):
         time.sleep(0.5)
 
+# --- FUNCION PARA ENVIAR EMAIL ---
+def enviar_email(destinatario, asunto, contenido_html):
+    remitente = os.environ.get("EMAIL_REMITENTE")
+    password = os.environ.get("EMAIL_PASSWORD")
+
+    msg = MIMEMultipart()
+    msg['From'] = remitente
+    msg['To'] = destinatario
+    msg['Subject'] = asunto
+    msg.attach(MIMEText(contenido_html, 'html'))
+
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(remitente, password)
+        server.send_message(msg)
+        server.quit()
+        print(f"Email enviado a {destinatario}")
+    except Exception as e:
+        print("Error al enviar email:", e)
+
 # --- FUNCIÓN PRINCIPAL ---
 def generar_informe_financiero_desde_texto(transcripcion, modo="0"):
     estilo_prompt = (
@@ -109,11 +133,7 @@ def generar_informe_financiero_desde_texto(transcripcion, modo="0"):
         anim_thread.join(timeout=1)
 
     # Convertir a HTML con Markdown para respetar títulos, negritas y párrafos
-    articulo_html = markdown.markdown(
-        articulo,
-        extensions=['extra']
-    )
-
+    articulo_html = markdown.markdown(articulo, extensions=['extra'])
     resumen_y_titulos = generar_resumen_y_titulos(articulo)
     resumen_html = markdown.markdown(resumen_y_titulos, extensions=['extra'])
 
@@ -131,5 +151,4 @@ def endpoint_resumen():
     return jsonify({"resumen": resultado})
 
 if __name__ == "__main__":
-    # Render necesita que la app escuche en 0.0.0.0
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
