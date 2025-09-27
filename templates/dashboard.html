@@ -3,22 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard</title>
+  <title>Dashboard - Financial Report Generator</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-white font-sans">
+<body class="bg-white font-sans text-gray-900">
   <header class="text-center py-8">
     <h1 class="text-3xl font-semibold">Welcome, {{ current_user.email }}</h1>
     <a href="{{ url_for('logout') }}" class="mt-2 inline-block text-gray-500 hover:underline">Logout</a>
   </header>
+
   <main class="max-w-2xl mx-auto px-6 py-10">
-    <form method="POST" action="{{ url_for('generate_report') }}" class="space-y-4">
-      <textarea name="transcript" placeholder="Paste transcript here..." rows="6" required
-        class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black"></textarea>
+    <form method="POST" class="space-y-6">
+      <textarea name="transcript" placeholder="Paste the full transcript here..." rows="12" required
+        class="w-full p-6 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-black"></textarea>
+
       <select name="modo" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black">
         <option value="0">Short (~1500 words)</option>
         <option value="1">Long (~6000 words)</option>
       </select>
+
       <button type="submit" class="w-full py-3 bg-black text-white rounded-lg hover:bg-gray-800">
         Generate Report
       </button>
@@ -26,3 +29,5 @@
   </main>
 </body>
 </html>
+
+
