@@ -68,25 +68,23 @@ def mostrar_cargando():
         time.sleep(0.5)
 
 # --- FUNCION PARA ENVIAR EMAIL ---
-def enviar_email(destinatario, asunto, contenido_html):
-    remitente = os.environ.get("EMAIL_REMITENTE")
-    password = os.environ.get("EMAIL_PASSWORD")
+import os
+import sendgrid
+from sendgrid.helpers.mail import Mail
 
-    msg = MIMEMultipart()
-    msg['From'] = remitente
-    msg['To'] = destinatario
-    msg['Subject'] = asunto
-    msg.attach(MIMEText(contenido_html, 'html'))
+def enviar_email(destinatario, asunto, contenido):
+    sg = sendgrid.SendGridAPIClient(api_key=os.environ.get("SENDGRID_API_KEY"))
+    from_email = os.environ.get("SENDGRID_FROM_EMAIL", "no-reply@tudominio.com")
 
-    try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(remitente, password)
-        server.send_message(msg)
-        server.quit()
-        print(f"Email enviado a {destinatario}")
-    except Exception as e:
-        print("Error al enviar email:", e)
+    message = Mail(
+        from_email=from_email,
+        to_emails=destinatario,
+        subject=asunto,
+        html_content=contenido
+    )
+    response = sg.send(message)
+    return response
+
 
 # --- FUNCIÓN PRINCIPAL ---
 def generar_informe_financiero_desde_texto(transcripcion, modo="0"):
