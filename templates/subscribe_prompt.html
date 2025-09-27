@@ -1,58 +1,28 @@
-<!DOCTYPE html>
-<html lang="es">
+<!doctype html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>Subscribe - Financial SaaS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Subscribe - Financial Report Generator</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #fff; color: #111; }
-    .container { max-width: 480px; margin: 0 auto; padding: 2rem; }
-    .btn { background-color: #000; color: #fff; padding: 1rem 2rem; border-radius: 1rem; font-weight: 600; transition: background 0.3s; }
-    .btn:hover { background-color: #333; }
-  </style>
+  <script src="https://js.stripe.com/v3/"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-  <div class="container text-center">
-    <h1 class="text-3xl font-semibold mb-4">Suscripción requerida</h1>
-    <p class="mb-6 text-gray-600">
-      Para acceder a la generación ilimitada de informes financieros, suscríbete por €10/mes.
-    </p>
-
-    <button id="checkout-button" class="btn">
-      Suscribirse ahora
-    </button>
-
-    <p class="mt-6 text-gray-500 text-sm">
-      Todos los pagos se procesan de forma segura mediante Stripe.
-    </p>
+<body class="bg-gray-50 flex items-center justify-center h-screen">
+  <div class="bg-white p-10 rounded-xl shadow-md w-full max-w-md text-center">
+    <h1 class="text-2xl font-bold mb-6">Subscription Required</h1>
+    <p class="mb-4">You need an active subscription to access the dashboard.</p>
+    <button id="checkout-button" class="bg-purple-500 text-white px-6 py-2 rounded-md hover:bg-purple-600 transition">Pay €10 / month</button>
   </div>
 
-  <!-- Stripe JS -->
-  <script src="https://js.stripe.com/v3/"></script>
   <script>
-    const stripe = Stripe('{{ publishable_key }}'); // Se pasa desde Flask
-
-    const checkoutButton = document.getElementById('checkout-button');
-    checkoutButton.addEventListener('click', async () => {
-      try {
-        const res = await fetch('/create-checkout-session', { method: 'POST' });
-        const data = await res.json();
-
-        if (data.id) {
-          stripe.redirectToCheckout({ sessionId: data.id });
-        } else {
-          alert('Error creando la sesión de pago');
-        }
-      } catch (err) {
-        console.error(err);
-        alert('Error al conectar con el servidor');
-      }
+    const stripe = Stripe('{{ publishable_key }}');
+    const button = document.getElementById('checkout-button');
+    button.addEventListener('click', () => {
+      fetch("/create-checkout-session", { method: "POST" })
+        .then(res => res.json())
+        .then(data => stripe.redirectToCheckout({ sessionId: data.id }))
+        .catch(err => console.error(err));
     });
   </script>
 </body>
 </html>
-
-
-
-
