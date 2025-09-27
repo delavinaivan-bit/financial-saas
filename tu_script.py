@@ -4,6 +4,7 @@ import time
 import threading
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
+import markdown  # pip install markdown
 
 load_dotenv()
 
@@ -107,13 +108,16 @@ def generar_informe_financiero_desde_texto(transcripcion, modo="0"):
     if anim_thread.is_alive():
         anim_thread.join(timeout=1)
 
-    resumen_y_titulos = generar_resumen_y_titulos(articulo)
-    return (
-        "### FULL ARTICLE ###\n\n" +
-        articulo +
-        "\n\n### SUMMARY + TITLES ###\n\n" +
-        resumen_y_titulos
+    # Convertir a HTML con Markdown para respetar títulos, negritas y párrafos
+    articulo_html = markdown.markdown(
+        articulo,
+        extensions=['extra']
     )
+
+    resumen_y_titulos = generar_resumen_y_titulos(articulo)
+    resumen_html = markdown.markdown(resumen_y_titulos, extensions=['extra'])
+
+    return articulo_html + "\n\n" + resumen_html
 
 # --- API FLASK ---
 app = Flask(__name__)
