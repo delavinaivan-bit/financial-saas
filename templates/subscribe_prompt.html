@@ -1,28 +1,52 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Subscribe - Financial SaaS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://js.stripe.com/v3/"></script>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/dist/tailwind.min.css" rel="stylesheet">
+  <title>Subscribe - Financial Report</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f5f7, #ffffff);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+  </style>
 </head>
-<body class="bg-gray-50 flex items-center justify-center h-screen">
-  <div class="bg-white p-10 rounded-xl shadow-md w-full max-w-md text-center">
-    <h1 class="text-2xl font-bold mb-6">Subscription Required</h1>
-    <p class="mb-4">You need an active subscription to access the dashboard.</p>
-    <button id="checkout-button" class="bg-purple-500 text-white px-6 py-2 rounded-md hover:bg-purple-600 transition">Pay €10 / month</button>
+<body class="flex items-center justify-center min-h-screen">
+  <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-md text-center">
+    <h1 class="text-3xl font-semibold mb-4">Subscribe to Access</h1>
+    <p class="text-gray-600 mb-6">
+      To use the Financial Report Generator, please subscribe for €10/month.
+    </p>
+
+    <button id="checkout-button" class="w-full py-3 px-4 bg-black text-white font-medium rounded-lg hover:bg-gray-900 transition-colors">
+      Pay with Card
+    </button>
+
+    <div class="mt-6 text-gray-500 text-sm">
+      Already have an account? <a href="/login" class="text-black hover:underline">Log In</a>
+    </div>
   </div>
 
   <script>
-    const stripe = Stripe('{{ publishable_key }}');
-    const button = document.getElementById('checkout-button');
-    button.addEventListener('click', () => {
-      fetch("/create-checkout-session", { method: "POST" })
-        .then(res => res.json())
-        .then(data => stripe.redirectToCheckout({ sessionId: data.id }))
-        .catch(err => console.error(err));
+    const stripe = Stripe("{{ publishable_key }}"); // Pasa tu clave pública de Stripe desde Flask
+
+    document.getElementById("checkout-button").addEventListener("click", () => {
+      fetch("/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.id) {
+          return stripe.redirectToCheckout({ sessionId: data.id });
+        } else {
+          alert("Error creating checkout session.");
+        }
+      });
     });
   </script>
 </body>
 </html>
+
+
