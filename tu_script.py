@@ -3,6 +3,7 @@ import os
 import time
 import threading
 from dotenv import load_dotenv
+from flask import Flask, request, jsonify
 
 load_dotenv()
 
@@ -62,7 +63,7 @@ def mostrar_cargando():
     while not getattr(mostrar_cargando, 'stop', False):
         time.sleep(0.5)
 
-# --- FUNCIÓN PRINCIPAL: desde texto (sin YouTube) ---
+# --- FUNCIÓN PRINCIPAL ---
 def generar_informe_financiero_desde_texto(transcripcion, modo="0"):
     estilo_prompt = (
         "Write an EXTENSIVE blog article in your own expert voice. "
@@ -114,8 +115,17 @@ def generar_informe_financiero_desde_texto(transcripcion, modo="0"):
         resumen_y_titulos
     )
 
-# --- FUNCIÓN ANTIGUA (solo por si acaso, pero NO se usará en Render) ---
-def generar_informe_financiero(video_url, modo="0"):
-    raise NotImplementedError(
-        "Esta función no funciona en Render. Usa 'generar_informe_financiero_desde_texto' con transcripción pegada."
-    )
+# --- API FLASK ---
+app = Flask(__name__)
+
+@app.route("/resumen", methods=["POST"])
+def endpoint_resumen():
+    data = request.json
+    transcripcion = data.get("transcripcion", "")
+    modo = data.get("modo", "0")
+    resultado = generar_informe_financiero_desde_texto(transcripcion, modo)
+    return jsonify({"resumen": resultado})
+
+if __name__ == "__main__":
+    # Render necesita que la app escuche en 0.0.0.0
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
