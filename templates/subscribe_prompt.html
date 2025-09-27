@@ -3,24 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Subscribe</title>
+  <title>Subscribe - Financial Report Generator</title>
   <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-white flex items-center justify-center h-screen font-sans">
-  <div class="w-full max-w-md p-8 bg-white shadow-md rounded-xl text-center">
-    <h1 class="text-2xl font-semibold mb-4">Subscription Required</h1>
-    <p class="text-gray-600 mb-6">Please subscribe to access the full report generator.</p>
-    <button id="checkout-button" class="w-full py-3 bg-black text-white rounded-lg hover:bg-gray-800">Subscribe</button>
-  </div>
   <script src="https://js.stripe.com/v3/"></script>
-  <script>
-    const stripe = Stripe('{{ publishable_key }}');
-    const btn = document.getElementById('checkout-button');
-    btn.addEventListener('click', async () => {
-      const res = await fetch('/create-checkout-session', { method: 'POST' });
-      const data = await res.json();
-      stripe.redirectToCheckout({ sessionId: data.id });
-    });
-  </script>
+</head>
+<body class="bg-white font-sans text-gray-900 flex items-center justify-center min-h-screen">
+  <div class="w-full max-w-md p-8 border rounded-xl shadow-lg text-center">
+    <h1 class="text-2xl font-semibold mb-4">Subscribe for Full Access</h1>
+    <p class="mb-6 text-gray-600">Unlimited financial reports for only €10/month.</p>
+    <button id="checkout-button" class="w-full py-3 bg-black text-white rounded-lg hover:bg-gray-800">
+      Pay with Card
+    </button>
+    <script>
+      const stripe = Stripe('{{ publishable_key }}');
+      const btn = document.getElementById('checkout-button');
+      btn.addEventListener('click', () => {
+        fetch("/create-checkout-session", { method: "POST" })
+        .then(res => res.json())
+        .then(data => stripe.redirectToCheckout({ sessionId: data.id }))
+        .catch(err => console.error(err));
+      });
+    </script>
+  </div>
 </body>
 </html>
+
+
