@@ -1,37 +1,35 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>Register - Financial SaaS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register - Financial Report Generator</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-white font-sans text-gray-900 flex items-center justify-center min-h-screen">
-  <div class="w-full max-w-md p-8 border rounded-xl shadow-lg">
-    <h1 class="text-3xl font-semibold text-center mb-6">Create Account</h1>
-
+<body class="bg-gray-50 flex items-center justify-center h-screen">
+  <div class="bg-white p-10 rounded-xl shadow-md w-full max-w-md">
+    <h1 class="text-2xl font-bold mb-6 text-center">Register</h1>
+    <form action="{{ url_for('register') }}" method="post" class="space-y-4">
+      <input type="email" name="email" placeholder="Email" required
+             class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400">
+      <input type="password" name="password" placeholder="Password" required
+             class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-400">
+      <button type="submit"
+              class="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition">Register</button>
+    </form>
+    <p class="mt-4 text-center text-gray-600">Already have an account? <a href="{{ url_for('login') }}" class="text-green-500 hover:underline">Login</a></p>
     {% with messages = get_flashed_messages() %}
       {% if messages %}
-        <div class="mb-4 text-red-500 text-sm">
-          {% for msg in messages %}{{ msg }}<br>{% endfor %}
+        <div class="mt-4 text-red-500 text-center">
+          {% for msg in messages %}
+            {{ msg }}
+          {% endfor %}
         </div>
       {% endif %}
     {% endwith %}
-
-    <form method="POST" action="{{ url_for('register') }}" class="space-y-4">
-      <input type="email" name="email" placeholder="Email" required
-        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-black">
-      <input type="password" name="password" placeholder="Password" required
-        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-black">
-      <button type="submit" class="w-full py-3 bg-black text-white rounded-lg hover:bg-gray-800">
-        Register
-      </button>
-    </form>
-
-    <p class="text-center mt-4 text-gray-600 text-sm">Already have an account? 
-      <a href="{{ url_for('login') }}" class="text-black font-medium hover:underline">Log In</a>
-    </p>
   </div>
 </body>
 </html>
+
+
 
