@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 import stripe
-import tu_script  # tu script de generación y envío de emails
+import tu_script  # script de generación y envío de emails
 
 # ---------- CONFIG ----------
 app = Flask(__name__)
@@ -71,14 +71,14 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 # ---------- DASHBOARD (PROTECTED) ----------
 @app.route('/dashboard', methods=['GET','POST'])
 @login_required
 def dashboard():
     if current_user.subscription_status != 'active':
-        # Redirige a pantalla de suscripción
+        # Usuario sin suscripción → mostrar pantalla de pago
         return render_template('subscribe_prompt.html', publishable_key=os.environ.get('STRIPE_PUBLISHABLE_KEY'))
 
     if request.method == 'POST':
@@ -115,7 +115,7 @@ def create_checkout_session():
 @app.route('/success')
 @login_required
 def success():
-    return render_template('success.html')
+    return redirect(url_for('dashboard'))
 
 # ---------- STRIPE WEBHOOK ----------
 @app.route('/webhook', methods=['POST'])
@@ -150,11 +150,9 @@ def stripe_webhook():
 # ---------- HOME ----------
 @app.route('/')
 def index():
-    if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
-    return render_template('index.html')
+    return redirect(url_for('login'))
 
-# ---------- SEND EMAIL (PROTECTED) ----------
+# ---------- SEND EMAIL ----------
 @app.route('/send_email', methods=['POST'])
 @login_required
 def send_email_route():
@@ -168,6 +166,5 @@ def send_email_route():
 # ---------- MAIN ----------
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # solo para desarrollo; usar migraciones en producción
+        db.create_all()
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
-
