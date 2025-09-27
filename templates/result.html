@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Generated Report</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {} },
+      plugins: [tailwind.typography],
+    }
+  </script>
   <style>
     .hero-video {
       position: relative;
@@ -56,7 +62,7 @@
   <!-- Report Content -->
   <main class="container mx-auto px-6 py-10">
     <div class="prose max-w-none mx-auto bg-white p-6 rounded-2xl shadow-md">
-      {{ informe|safe }}
+      {{ informe|markdown|safe }}
     </div>
 
     <!-- Email Form -->
