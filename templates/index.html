@@ -3,101 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Financial Report Generator</title>
+  <title>Financial Report Generator - Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .hero-video {
-      position: relative;
-      width: 100%;
-      height: 60vh;
-      overflow: hidden;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    .hero-video video {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      min-width: 100%;
-      min-height: 100%;
-      width: auto;
-      height: auto;
-      transform: translateX(-50%);
-      object-fit: cover;
-      z-index: -1;
-    }
-    .hero-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255,255,255,0.2);
-    }
-  </style>
 </head>
-<body class="bg-white font-sans text-gray-900">
+<body class="bg-white font-sans text-gray-900 flex items-center justify-center min-h-screen">
+  <div class="w-full max-w-md p-8 border rounded-xl shadow-lg">
+    <h1 class="text-3xl font-semibold text-center mb-6">Financial Report Generator</h1>
 
-  <!-- Header -->
-  <header class="text-center py-6">
-    <h1 class="text-5xl md:text-6xl font-semibold tracking-tight leading-tight">
-      Financial Report Generator
-    </h1>
-    <p class="mt-2 text-lg text-gray-600">Transform your transcripts into professional financial reports</p>
-  </header>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="mb-4 text-red-500 text-sm">
+          {% for msg in messages %}{{ msg }}<br>{% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
 
-  <!-- Hero Video -->
-  <section class="hero-video">
-    <video autoplay muted playsinline>
-      <source src="{{ url_for('static', filename='video.mp4') }}" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
-    <div class="hero-overlay"></div>
-  </section>
-
-  <!-- Form Section -->
-  <main class="container mx-auto px-6 py-10 text-center">
-    <h2 class="text-2xl font-medium mb-4">Paste the full transcript here</h2>
-
-    <form method="POST" class="max-w-lg mx-auto space-y-6">
-      <textarea 
-        name="transcript" 
-        placeholder="Paste the full transcript here..."
-        rows="12"
-        class="w-full p-6 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-        required
-      ></textarea>
-
-      <select 
-        name="modo"
-        class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-      >
-        <option value="0">Short (~1500 words)</option>
-        <option value="1">Long (~6000 words)</option>
-      </select>
-
-      <button 
-        type="submit" 
-        class="w-full bg-black text-white py-4 rounded-lg font-medium hover:bg-gray-800 transition"
-      >
-        Generate Report
+    <!-- Login Form -->
+    <form method="POST" action="{{ url_for('login') }}" class="space-y-4">
+      <input type="email" name="email" placeholder="Email" required
+        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-black">
+      <input type="password" name="password" placeholder="Password" required
+        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-black">
+      <button type="submit" class="w-full py-3 bg-black text-white rounded-lg hover:bg-gray-800">
+        Log In
       </button>
     </form>
-  </main>
 
-  <!-- Subscription Section -->
-  <section class="bg-gray-50 py-12 border-t border-gray-200 text-center">
-    <h2 class="text-xl font-medium mb-4">Subscribe for Full Access</h2>
-    <p class="text-gray-600 mb-6">Unlimited reports for only €10/month</p>
-    <a href="https://buy.stripe.com/5kQ8wPaaD7v29w8a5heEo00" 
-       class="bg-black text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition">
-      Subscribe Now
-    </a>
-  </section>
-
-  <!-- Footer -->
-  <footer class="text-center text-gray-500 text-sm py-8">
-    © 2025 Financial Report Generator. All rights reserved.
-  </footer>
-
+    <p class="text-center mt-4 text-gray-600 text-sm">Don't have an account? 
+      <a href="{{ url_for('register') }}" class="text-black font-medium hover:underline">Register</a>
+    </p>
+  </div>
 </body>
 </html>
