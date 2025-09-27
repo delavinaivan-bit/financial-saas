@@ -1,34 +1,44 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Login - Financial SaaS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/dist/tailwind.min.css" rel="stylesheet">
+  <title>Login - Financial Report</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f5f7, #ffffff);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+  </style>
 </head>
-<body class="bg-gray-50 flex items-center justify-center h-screen">
-  <div class="bg-white p-10 rounded-xl shadow-md w-full max-w-md">
-    <h1 class="text-2xl font-bold mb-6 text-center">Login</h1>
-    <form action="{{ url_for('login') }}" method="post" class="space-y-4">
-      <input type="email" name="email" placeholder="Email" required
-             class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-      <input type="password" name="password" placeholder="Password" required
-             class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-      <button type="submit"
-              class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition">Login</button>
+<body class="flex items-center justify-center min-h-screen">
+  <div class="w-full max-w-sm bg-white p-8 rounded-2xl">
+    <h1 class="text-3xl font-semibold text-center mb-6">Financial Report</h1>
+    
+    <form action="/login" method="POST" class="space-y-5">
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+        <input type="email" name="email" id="email" required
+               class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-black focus:border-black" />
+      </div>
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+        <input type="password" name="password" id="password" required
+               class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-black focus:border-black" />
+      </div>
+      <button type="submit" class="w-full py-2 px-4 bg-black text-white font-medium rounded-lg hover:bg-gray-900 transition-colors">
+        Log In
+      </button>
     </form>
-    <p class="mt-4 text-center text-gray-600">No account? <a href="{{ url_for('register') }}" class="text-blue-500 hover:underline">Register</a></p>
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div class="mt-4 text-red-500 text-center">
-          {% for msg in messages %}
-            {{ msg }}
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
+
+    <div class="mt-6 text-center text-sm text-gray-500">
+      Don’t have an account? <a href="/register" class="text-black hover:underline">Register</a>
+    </div>
   </div>
 </body>
 </html>
+
+
 
 
