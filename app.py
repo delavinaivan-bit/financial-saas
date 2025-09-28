@@ -28,12 +28,24 @@ class User(db.Model, UserMixin):
     stripe_customer_id = db.Column(db.String(200), nullable=True)
     stripe_subscription_id = db.Column(db.String(200), nullable=True)
     subscription_status = db.Column(db.String(50), default='inactive')  # inactive | active | cancelled
+    listas = db.relationship('EmailList', backref='user', cascade='all, delete-orphan')
 
     def set_password(self, pw):
         self.password_hash = generate_password_hash(pw)
 
     def check_password(self, pw):
         return check_password_hash(self.password_hash, pw)
+
+class EmailList(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    contactos = db.relationship('EmailContact', backref='lista', cascade='all, delete-orphan')
+
+class EmailContact(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(200), nullable=False)
+    lista_id = db.Column(db.Integer, db.ForeignKey('email_list.id'), nullable=False)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -94,10 +106,34 @@ def dashboard():
         informe_html = markdown.markdown(informe_md, extensions=['extra'])
 
         # ✅ pasamos HTML limpio al template
-        return render_template('result.html', informe=informe_html)
+        listas = EmailList.query.filter_by(user_id=current_user.id).all()
+        return render_template('result.html', informe=informe_html, listas=listas)
 
     return render_template('dashboard.html')
 
+# ---------- EMAIL LISTS ----------
+@app.route('/email_lists', methods=['GET', 'POST'])
+@login_required
+def email_lists():
+    if request.method == 'POST':
+        nombre = request.form.get('nombre')
+        if nombre:
+            nueva_lista = EmailList(nombre=nombre, user_id=current_user.id)
+            db.session.add(nueva_lista)
+            db.session.commit()
+    listas = EmailList.query.filter_by(user_id=current_user.id).all()
+    return render_template('email_lists.html', listas=listas)
+
+@app.route('/add_contact/<int:lista_id>', methods=['POST'])
+@login_required
+def add_contact(lista_id):
+    lista = EmailList.query.filter_by(id=lista_id, user_id=current_user.id).first_or_404()
+    email = request.form.get('email')
+    if email:
+        nuevo_contacto = EmailContact(email=email, lista_id=lista.id)
+        db.session.add(nuevo_contacto)
+        db.session.commit()
+    return redirect(url_for('email_lists'))
 
 # ---------- STRIPE CHECKOUT ----------
 @app.route('/create-checkout-session', methods=['POST'])
@@ -168,23 +204,31 @@ def index():
 def send_email_route():
     if current_user.subscription_status != 'active':
         return "<h2>Subscription required</h2>", 403
-    
-    destinatario = request.form.get('email')  # <-- ahora coge del formulario
+
+    lista_id = request.form.get('lista_id')
+    emails = []
+
+    if lista_id:
+        lista = EmailList.query.filter_by(id=lista_id, user_id=current_user.id).first()
+        if lista:
+            emails = [c.email for c in lista.contactos]
+    else:
+        destinatario = request.form.get('email')
+        if destinatario:
+            emails = [destinatario]
+
     informe = request.form.get('informe')
+    if not emails:
+        return "<h2>Error: no recipient email(s)</h2>", 400
 
-    if not destinatario:
-        return "<h2>Error: missing recipient email</h2>", 400
+    for e in emails:
+        tu_script.enviar_email(e, "Your Financial Report", informe)
 
-    try:
-        tu_script.enviar_email(destinatario, "Your Financial Report", informe)
-        return "<h2>Sent ✅</h2>"
-    except Exception as e:
-        return f"<h2>Error sending email: {str(e)}</h2>", 500
-
-
+    return "<h2>Sent ✅</h2>"
 
 # ---------- MAIN ----------
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
