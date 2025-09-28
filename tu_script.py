@@ -74,7 +74,7 @@ from sendgrid.helpers.mail import Mail
 
 def enviar_email(destinatario, asunto, contenido):
     sg = sendgrid.SendGridAPIClient(api_key=os.environ.get("SENDGRID_API_KEY"))
-    from_email = os.environ.get("SENDGRID_FROM_EMAIL", "no-reply@tudominio.com")
+    from_email = os.environ.get("SENDGRID_FROM_EMAIL", "delavinaivan@gmail.com")
 
     message = Mail(
         from_email=from_email,
