@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Email Lists</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white font-sans text-gray-900 p-10">
+
+<h1 class="text-3xl font-semibold mb-6">My Email Lists</h1>
+
+<!-- Crear nueva lista -->
+<form action="/email_lists" method="POST" class="mb-6 space-y-2">
+  <input type="text" name="nombre" placeholder="New list name" required
+         class="p-2 border rounded-lg w-64">
+  <button type="submit" class="px-4 py-2 bg-black text-white rounded-lg">Create List</button>
+</form>
+
+<!-- Listas existentes -->
+{% for lista in listas %}
+<div class="mb-4 p-4 border rounded-lg">
+  <h2 class="font-semibold">{{ lista.nombre }}</h2>
+  <form action="/add_contact/{{ lista.id }}" method="POST" class="mt-2 flex space-x-2">
+    <input type="email" name="email" placeholder="Add email" required
+           class="p-2 border rounded-lg flex-1">
+    <button type="submit" class="px-3 bg-black text-white rounded-lg">Add</button>
+  </form>
+  <ul class="mt-2 list-disc list-inside">
+    {% for c in lista.contactos %}
+      <li>{{ c.email }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endfor %}
+
+<a href="/dashboard" class="inline-block mt-6 text-black hover:underline">← Back to Dashboard</a>
+
+</body>
+</html>
