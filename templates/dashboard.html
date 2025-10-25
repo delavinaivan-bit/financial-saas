@@ -70,7 +70,25 @@
           Generate Report
         </button>
       </form>
-      <p id="loadingMessage" style="display:none; text-align:center; margin-top:10px; font-weight:bold;">Preparando...</p>
+
+      <p id="loadingMessage" style="display:none; text-align:center; margin-top:10px; font-weight:bold;">
+        Preparando...
+      </p>
+
+      <!-- Bloque SMTP -->
+      <div class="text-center mt-6">
+        <a href="/smtp_config" class="text-sm text-gray-600 hover:underline">
+          Configure your sender email (SMTP)
+        </a>
+        <p class="text-xs text-gray-500 mt-2">
+          From: <strong>{{ current_user.smtp_email or 'Not configured' }}</strong>
+        </p>
+        {% if not current_user.smtp_email %}
+          <div class="mt-3 p-3 rounded-lg bg-yellow-50 text-yellow-800 text-sm">
+            Tip: si vas a enviar el informe por email, configura primero tu remitente.
+          </div>
+        {% endif %}
+      </div>
     </div>
 
     <div class="text-center mt-10">
@@ -95,12 +113,13 @@
 
     form.addEventListener('submit', () => {
       loading.style.display = 'block';
-      btn.disabled = true; 
+      btn.disabled = true;
       btn.innerText = 'Procesando...';
     });
   </script>
 </body>
 </html>
+
 
 
 
