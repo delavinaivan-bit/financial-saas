@@ -61,6 +61,30 @@ class EmailList(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     contactos = db.relationship('EmailContact', backref='lista', cascade='all, delete-orphan')
 
+@app.route('/smtp_config', methods=['GET', 'POST'])
+@login_required
+def smtp_config():
+    if request.method == 'POST':
+        # Guardar valores del formulario
+        current_user.smtp_email = request.form.get('smtp_email', '').strip() or None
+        current_user.smtp_server = request.form.get('smtp_server', '').strip() or 'smtp.gmail.com'
+        try:
+            current_user.smtp_port = int(request.form.get('smtp_port', 587))
+        except Exception:
+            current_user.smtp_port = 587
+
+        pwd = request.form.get('smtp_password', '').strip()
+        if pwd:  # solo actualiza si escribes algo
+            current_user.smtp_password = pwd  # (más adelante lo ciframos si quieres)
+
+        db.session.commit()
+        flash("SMTP settings saved ✅")
+        return redirect(url_for('dashboard'))
+
+    # GET: mostrar formulario
+    return render_template('smtp_config.html')
+
+
 class EmailContact(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(200), nullable=False)
