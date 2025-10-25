@@ -23,18 +23,37 @@ stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 # ---------- MODELS ----------
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
+    
+    # Credenciales básicas
     email = db.Column(db.String(200), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
+
+    # === Configuración SMTP por usuario ===
+    smtp_email = db.Column(db.String(200), nullable=True)                # correo remitente (desde el que se enviarán informes)
+    smtp_password = db.Column(db.String(300), nullable=True)             # contraseña de aplicación o token SMTP
+    smtp_server = db.Column(db.String(120), default='smtp.gmail.com')    # servidor SMTP (por defecto Gmail)
+    smtp_port = db.Column(db.Integer, default=587)                       # puerto TLS típico (587)
+
+    # === Stripe / suscripciones ===
     stripe_customer_id = db.Column(db.String(200), nullable=True)
     stripe_subscription_id = db.Column(db.String(200), nullable=True)
-    subscription_status = db.Column(db.String(50), default='inactive')  # inactive | active | cancelled
+    subscription_status = db.Column(db.String(50), default='inactive')   # inactive | active | cancelled
+
+    # === Relaciones ===
     listas = db.relationship('EmailList', backref='user', cascade='all, delete-orphan')
 
+    # === Métodos de utilidad ===
     def set_password(self, pw):
+        """Genera y guarda el hash seguro de la contraseña del usuario."""
         self.password_hash = generate_password_hash(pw)
 
     def check_password(self, pw):
+        """Verifica si una contraseña ingresada coincide con el hash guardado."""
         return check_password_hash(self.password_hash, pw)
+
+    def __repr__(self):
+        return f"<User id={self.id} email={self.email}>"
+
 
 class EmailList(db.Model):
     id = db.Column(db.Integer, primary_key=True)
