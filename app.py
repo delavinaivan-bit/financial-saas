@@ -18,6 +18,23 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
+from sqlalchemy import text  # ⬅️ añada este import
+
+# ⬇️ Ruta temporal para crear las 4 columnas SMTP en la tabla "user"
+@app.route('/_add_smtp_columns')
+def _add_smtp_columns():
+    try:
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN IF NOT EXISTS smtp_email VARCHAR(200);'))
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN IF NOT EXISTS smtp_password VARCHAR(300);'))
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN IF NOT EXISTS smtp_server VARCHAR(120) DEFAULT \'smtp.gmail.com\';'))
+        db.session.execute(text('ALTER TABLE "user" ADD COLUMN IF NOT EXISTS smtp_port INTEGER DEFAULT 587;'))
+        db.session.commit()
+        return "OK: columnas SMTP creadas/ya existían ✅"
+    except Exception as e:
+        db.session.rollback()
+        return f"ERROR: {e}", 500
+
+
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 
 # ---------- MODELS ----------
