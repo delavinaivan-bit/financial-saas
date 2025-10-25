@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Settings</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white font-sans text-gray-900">
+  <main class="container mx-auto px-6 py-10">
+    <div class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow">
+      <h1 class="text-2xl font-semibold text-center mb-6">Email Settings (SMTP)</h1>
+
+      <form action="/smtp_config" method="POST" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium">From Email</label>
+          <input type="email" name="smtp_email" required
+                 value="{{ current_user.smtp_email or '' }}"
+                 class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium">SMTP Password (App Password)</label>
+          <input type="password" name="smtp_password" placeholder="••••••••"
+                 class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg">
+          <p class="text-xs text-gray-500 mt-1">
+            Gmail: activa 2FA y crea un App Password. Outlook/Office365: usa contraseña de app si aplica.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div class="col-span-2">
+            <label class="block text-sm font-medium">SMTP Server</label>
+            <input type="text" name="smtp_server" value="{{ current_user.smtp_server or 'smtp.gmail.com' }}"
+                   class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg">
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Port</label>
+            <input type="number" name="smtp_port" value="{{ current_user.smtp_port or 587 }}"
+                   class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg">
+          </div>
+        </div>
+
+        <button class="w-full py-2 px-4 bg-black text-white rounded-lg">Save</button>
+      </form>
+
+      <div class="text-center mt-6">
+        <a href="/dashboard" class="text-black hover:underline">← Back to Dashboard</a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
