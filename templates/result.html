@@ -38,6 +38,50 @@
           </select>
         </div>
 
+        <!-- 🔹 BLOQUE NUEVO: crear listas y añadir emails -->
+        {% if not listas or listas|length == 0 %}
+          <div class="mt-3 p-3 rounded bg-yellow-50 text-yellow-800 text-sm">
+            No email lists yet. Create one below ⬇
+          </div>
+        {% endif %}
+
+        <div class="mt-4 space-y-4">
+          <!-- Crear nueva lista -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Create a new list (inline)</label>
+            <div class="mt-1 flex gap-2">
+              <input type="text" id="newListName"
+                     class="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
+                     placeholder="e.g. Clients VIP">
+              <button type="button" id="createListBtn"
+                      class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">
+                Create
+              </button>
+            </div>
+          </div>
+
+          <!-- Añadir email a la lista seleccionada -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Add email to selected list</label>
+            <div class="mt-1 flex gap-2">
+              <input type="email" id="newEmail"
+                     class="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
+                     placeholder="example@domain.com">
+              <button type="button" id="addEmailBtn"
+                      class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">
+                Add
+              </button>
+            </div>
+            <p id="listHelper" class="text-xs text-gray-500 mt-1">
+              Select a list above, then add as many emails as you want.
+            </p>
+          </div>
+
+          <!-- Feedback -->
+          <div id="inlineStatus" class="text-sm"></div>
+        </div>
+        <!-- 🔹 FIN BLOQUE NUEVO -->
+
         <!-- Individual email fallback -->
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700">Or enter recipient email:</label>
@@ -62,6 +106,75 @@
   <footer class="text-center text-gray-500 text-sm py-8">
     © 2025 Financial Report Generator. All rights reserved.
   </footer>
+
+  <!-- 🔹 SCRIPT NUEVO -->
+  <script>
+    const selectList = document.getElementById('lista_id');
+    const newListName = document.getElementById('newListName');
+    const createListBtn = document.getElementById('createListBtn');
+    const newEmail     = document.getElementById('newEmail');
+    const addEmailBtn  = document.getElementById('addEmailBtn');
+    const inlineStatus = document.getElementById('inlineStatus');
+
+    function flashStatus(msg, ok=true) {
+      inlineStatus.textContent = msg;
+      inlineStatus.className = 'text-sm mt-2 ' + (ok ? 'text-green-700' : 'text-red-700');
+      setTimeout(() => { inlineStatus.textContent = ''; }, 3000);
+    }
+
+    // Crear lista nueva
+    createListBtn?.addEventListener('click', async () => {
+      const nombre = (newListName.value || '').trim();
+      if (!nombre) { flashStatus('List name required', false); return; }
+
+      try {
+        const res = await fetch('/create_list_json', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre })
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'Error creating list');
+
+        // Añadir la nueva lista al <select> y seleccionarla
+        const opt = document.createElement('option');
+        opt.value = data.lista.id;
+        opt.textContent = data.lista.nombre;
+        selectList.appendChild(opt);
+        selectList.value = String(data.lista.id);
+
+        newListName.value = '';
+        flashStatus('List created ✔ and selected');
+      } catch (e) {
+        flashStatus(e.message, false);
+      }
+    });
+
+    // Añadir email a la lista seleccionada
+    addEmailBtn?.addEventListener('click', async () => {
+      const listaId = selectList.value;
+      if (!listaId) { flashStatus('Select a list first', false); return; }
+
+      const email = (newEmail.value || '').trim();
+      if (!email) { flashStatus('Email required', false); return; }
+
+      try {
+        const res = await fetch('/add_contact_json', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lista_id: Number(listaId), email })
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'Error adding email');
+
+        newEmail.value = '';
+        flashStatus(`Added: ${data.contact.email} ✔`);
+      } catch (e) {
+        flashStatus(e.message, false);
+      }
+    });
+  </script>
+  <!-- 🔹 FIN SCRIPT NUEVO -->
 
 </body>
 </html>
