@@ -72,7 +72,36 @@ import os
 import sendgrid
 from sendgrid.helpers.mail import Mail
 
-def enviar_email(destinatario, asunto, contenido):
+def enviar_email(destinatario, asunto, contenido, user=None):
+    """
+    Envía un email. Si el usuario tiene SMTP configurado, usa su cuenta personal.
+    Si no, usa SendGrid como método de respaldo.
+    """
+    # --- 1️⃣ Intentar enviar con el SMTP del usuario ---
+    if user and getattr(user, "smtp_email", None) and getattr(user, "smtp_password", None):
+        try:
+            import smtplib
+            from email.mime.text import MIMEText
+
+            msg = MIMEText(contenido, "html")
+            msg["From"] = user.smtp_email
+            msg["To"] = destinatario
+            msg["Subject"] = asunto
+
+            with smtplib.SMTP(user.smtp_server or "smtp.gmail.com", user.smtp_port or 587) as server:
+                server.starttls()
+                server.login(user.smtp_email, user.smtp_password)
+                server.send_message(msg)
+            print(f"✅ Enviado con SMTP personal de {user.smtp_email}")
+            return {"status": "ok", "method": "smtp"}
+        except Exception as e:
+            print(f"⚠️ Error SMTP ({user.smtp_email}): {e}")
+            # Si falla, pasamos al método SendGrid automáticamente
+
+    # --- 2️⃣ Envío por SendGrid como respaldo ---
+    import sendgrid
+    from sendgrid.helpers.mail import Mail
+
     sg = sendgrid.SendGridAPIClient(api_key=os.environ.get("SENDGRID_API_KEY"))
     from_email = os.environ.get("SENDGRID_FROM_EMAIL", "delavinaivan@gmail.com")
 
@@ -83,7 +112,9 @@ def enviar_email(destinatario, asunto, contenido):
         html_content=contenido
     )
     response = sg.send(message)
-    return response
+    print(f"✅ Enviado con SendGrid desde {from_email}")
+    return {"status": "ok", "method": "sendgrid", "response": response.status_code}
+
 
 
 # --- FUNCIÓN PRINCIPAL ---
