@@ -170,13 +170,30 @@ def email_lists():
 @app.route('/add_contact/<int:lista_id>', methods=['POST'])
 @login_required
 def add_contact(lista_id):
+    """Permite añadir contactos a una lista por formulario clásico o vía JSON (AJAX)."""
     lista = EmailList.query.filter_by(id=lista_id, user_id=current_user.id).first_or_404()
-    email = request.form.get('email')
+
+    # Si viene como JSON (desde fetch)
+    if request.is_json:
+        data = request.get_json() or {}
+        email = (data.get('email') or '').strip()
+        if not email:
+            return jsonify({'ok': False, 'error': 'Email required'}), 400
+
+        nuevo_contacto = EmailContact(email=email, lista_id=lista.id)
+        db.session.add(nuevo_contacto)
+        db.session.commit()
+        return jsonify({'ok': True, 'contact': {'id': nuevo_contacto.id, 'email': nuevo_contacto.email}}), 200
+
+    # Si viene del formulario HTML tradicional
+    email = request.form.get('email', '').strip()
     if email:
         nuevo_contacto = EmailContact(email=email, lista_id=lista.id)
         db.session.add(nuevo_contacto)
         db.session.commit()
+
     return redirect(url_for('email_lists'))
+
 
 # ---------- STRIPE CHECKOUT ----------
 @app.route('/create-checkout-session', methods=['POST'])
