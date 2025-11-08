@@ -244,7 +244,8 @@ def stripe_webhook():
 # ---------- HOME ----------
 @app.route('/')
 def index():
-    return redirect(url_for('login'))
+    return render_template('index.html')
+
 
 # ---------- SEND EMAIL ----------
 @app.route('/send_email', methods=['POST'])
