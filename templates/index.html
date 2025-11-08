@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Paste Transcript</title>
+  <title>Financial Report Generator</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Hero video on dashboard page */
     .hero-video {
       position: relative;
       width: 100%;
-      height: 40vh;
+      height: 70vh;
       overflow: hidden;
       border-bottom: 1px solid #e5e7eb;
     }
@@ -34,18 +33,21 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(255,255,255,0.2);
+      background: linear-gradient(to bottom, rgba(255,255,255,0.4), rgba(255,255,255,0.95));
     }
   </style>
 </head>
 
-<body class="bg-white font-sans text-gray-900">
+<body class="bg-white text-gray-900 font-sans">
 
   <!-- Header -->
-  <header class="text-center py-6">
+  <header class="text-center py-8">
     <h1 class="text-5xl md:text-6xl font-semibold tracking-tight leading-tight">
       Financial Report Generator
     </h1>
+    <p class="mt-3 text-gray-500 max-w-2xl mx-auto text-lg">
+      Transform long transcripts into professional financial summaries and insights powered by AI.
+    </p>
   </header>
 
   <!-- Hero Video -->
@@ -55,38 +57,66 @@
       Your browser does not support the video tag.
     </video>
     <div class="hero-overlay"></div>
+
+    <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+      <h2 class="text-3xl md:text-4xl font-medium text-gray-800 max-w-2xl leading-snug">
+        From transcripts to insights — automatically.
+      </h2>
+      <p class="mt-4 text-gray-600 max-w-xl">
+        Upload your meeting, earnings call, or client transcript and let our AI instantly turn it into a clear, structured financial report.
+      </p>
+      <div class="mt-8 flex gap-4">
+        <a href="{{ url_for('register') }}"
+           class="px-6 py-3 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition">
+          Get Started
+        </a>
+        <a href="{{ url_for('login') }}"
+           class="px-6 py-3 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-100 transition">
+          Log In
+        </a>
+      </div>
+    </div>
   </section>
 
-  <!-- Transcript Form -->
-  <main class="container mx-auto px-6 py-10">
-    <div class="max-w-3xl mx-auto bg-white p-6 rounded-2xl shadow-md">
-      <h2 class="text-2xl font-semibold text-center mb-6">Paste your transcript below</h2>
-      <form action="/dashboard" method="POST" class="space-y-4">
-        <textarea name="transcript" rows="12" required
-                  class="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:ring-black focus:border-black"
-                  placeholder="Paste your transcript here..."></textarea>
-        <select name="modo" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-black focus:border-black">
-          <option value="0">Summary Mode</option>
-          <option value="1">Detailed Mode</option>
-        </select>
-        <button type="submit"
-                class="w-full py-3 px-4 bg-black text-white font-medium rounded-lg shadow hover:bg-gray-800">
-          Generate Report
-        </button>
-      </form>
+  <!-- Features -->
+  <main class="max-w-5xl mx-auto px-6 py-20">
+    <div class="grid md:grid-cols-3 gap-10 text-center">
+      <div>
+        <h3 class="text-xl font-semibold mb-2">🧠 AI-Powered Summaries</h3>
+        <p class="text-gray-600">
+          Advanced language models analyze your transcripts and extract key financial data automatically.
+        </p>
+      </div>
+      <div>
+        <h3 class="text-xl font-semibold mb-2">📊 Professional Formatting</h3>
+        <p class="text-gray-600">
+          Receive ready-to-send reports styled for investors, clients, or team presentations.
+        </p>
+      </div>
+      <div>
+        <h3 class="text-xl font-semibold mb-2">📧 One-Click Emailing</h3>
+        <p class="text-gray-600">
+          Instantly share your generated report with email lists or individual recipients.
+        </p>
+      </div>
     </div>
 
-    <!-- Footer Link -->
-    <div class="text-center mt-10">
-      <a href="/" class="text-black hover:underline font-medium">← Back to Home</a>
+    <div class="mt-20 text-center">
+      <h3 class="text-2xl font-semibold text-gray-800 mb-4">Built for financial professionals</h3>
+      <p class="text-gray-600 max-w-2xl mx-auto mb-8">
+        Whether you’re an analyst, investor, or founder, Financial Report Generator helps you save hours every week turning conversations into structured insights.
+      </p>
+      <a href="{{ url_for('register') }}"
+         class="inline-block px-8 py-4 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition">
+        Try It Now
+      </a>
     </div>
   </main>
 
   <!-- Footer -->
-  <footer class="text-center text-gray-500 text-sm py-8">
-    © 2025 Financial Report Generator. All rights reserved.
+  <footer class="text-center text-gray-500 text-sm py-10 border-t border-gray-200">
+    © 2025 Financial Report Generator · Developed with precision and AI.
   </footer>
 
 </body>
 </html>
-
