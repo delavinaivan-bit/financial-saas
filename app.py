@@ -148,9 +148,7 @@ def dashboard():
 
     return render_template('dashboard.html')
 
-# ---------- EMAIL LISTS ----------
-@app.route('/email_lists', methods=['GET', 'POST'])
-@login_required
+
 # ---------- EMAIL LISTS ----------
 @app.route('/email_lists', methods=['GET'])
 @login_required
