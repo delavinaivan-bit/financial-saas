@@ -29,6 +29,8 @@
   </div>
 
   <script>
+    <script src="https://js.stripe.com/v3/"></script>
+
     const stripe = Stripe("{{ publishable_key }}"); // Pasa tu clave pública de Stripe desde Flask
 
     document.getElementById("checkout-button").addEventListener("click", () => {
@@ -48,5 +50,6 @@
   </script>
 </body>
 </html>
+
 
 
