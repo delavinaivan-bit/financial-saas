@@ -37,62 +37,56 @@
 
   <!-- JS -->
  <script>
-document.getElementById("createListBtn").addEventListener("click", async () => {
-  const input = document.getElementById("listName");
-  const status = document.getElementById("statusMsg");
-  const name = input.value.trim();
+  document.getElementById("createListBtn").addEventListener("click", async () => {
+    const input = document.getElementById("listName");
+    const status = document.getElementById("statusMsg");
+    const name = input.value.trim();
 
-  if (!name) {
-    status.textContent = "⚠️ Please enter a name.";
-    status.className = "text-sm mt-3 text-red-500";
-    return;
-  }
-
-  status.textContent = "⏳ Creating list...";
-  status.className = "text-sm mt-3 text-gray-500";
-
-  try {
-    const res = await fetch("/email_lists", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre: name })
-    });
-
-    // ⚠️ Si Flask devolvió HTML (login page, error 500, etc.)
-    const contentType = res.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      const text = await res.text();
-      console.warn("Non-JSON response:", text);
-      status.textContent = "❌ Server returned HTML instead of JSON.";
+    if (!name) {
+      status.textContent = "⚠️ Please enter a name.";
       status.className = "text-sm mt-3 text-red-500";
       return;
     }
 
-    const data = await res.json();
-    if (data.ok) {
-      status.textContent = "✅ List created!";
-      status.className = "text-sm mt-3 text-green-600";
+    status.textContent = "⏳ Creating list...";
+    status.className = "text-sm mt-3 text-gray-500";
 
-      const div = document.createElement("div");
-      div.className = "bg-white shadow p-4 rounded-lg";
-      div.innerHTML = `<h3 class="text-lg font-medium">${data.nombre}</h3>`;
-      document.getElementById("listContainer").prepend(div);
+    try {
+      // 🔥 CAMBIO AQUÍ: apuntamos a la ruta correcta de Flask
+      const res = await fetch("/email_lists", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre: name })
+      });
 
-      input.value = "";
-    } else {
-      status.textContent = "❌ " + (data.error || "Error creating list.");
+      const data = await res.json();
+      if (data.ok) {
+        status.textContent = "✅ List created!";
+        status.className = "text-sm mt-3 text-green-600";
+
+        // Add instantly to the page
+        const div = document.createElement("div");
+        div.className = "bg-white shadow p-4 rounded-lg";
+        div.innerHTML = `<h3 class="text-lg font-medium">${data.nombre}</h3>`;
+        document.getElementById("listContainer").prepend(div);
+
+        input.value = "";
+      } else {
+        status.textContent = "❌ " + (data.error || "Error creating list.");
+        status.className = "text-sm mt-3 text-red-500";
+      }
+    } catch (err) {
+      console.error(err);
+      status.textContent = "❌ Connection error.";
       status.className = "text-sm mt-3 text-red-500";
     }
-  } catch (err) {
-    console.error(err);
-    status.textContent = "❌ Connection error.";
-    status.className = "text-sm mt-3 text-red-500";
-  }
-});
+  });
 </script>
+
 
 
 </body>
 </html>
+
 
 
