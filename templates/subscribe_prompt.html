@@ -7,49 +7,72 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
-      background: linear-gradient(135deg, #f5f5f7, #ffffff);
+      background-color: #0d0d0d;
+      color: #f5f5f5;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .btn-primary {
+      background-color: #ff7a00;
+      transition: all 0.2s ease;
+    }
+    .btn-primary:hover {
+      background-color: #ff9a33;
     }
   </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
-  <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-md text-center">
+  <div class="w-full max-w-md bg-[#111] border border-[#222] p-8 rounded-2xl shadow-lg text-center">
     <h1 class="text-3xl font-semibold mb-4">Subscribe to Access</h1>
-    <p class="text-gray-600 mb-6">
-      To use the Financial Report Generator, please subscribe for €10/month.
+    <p class="text-gray-400 mb-6">
+      Get full access to the Financial Report Generator for just <span class="text-orange-400 font-medium">€10/month</span>.
     </p>
 
-    <button id="checkout-button" class="w-full py-3 px-4 bg-black text-white font-medium rounded-lg hover:bg-gray-900 transition-colors">
-      Pay with Card
+    <button id="checkout-button" class="btn-primary w-full py-3 px-4 text-white font-medium rounded-lg">
+      💳 Pay with Card
     </button>
 
     <div class="mt-6 text-gray-500 text-sm">
-      Already have an account? <a href="/login" class="text-black hover:underline">Log In</a>
+      Already have an account?
+      <a href="/login" class="text-orange-400 hover:underline">Log In</a>
     </div>
   </div>
 
+  <!-- ✅ Stripe official library -->
+  <script src="https://js.stripe.com/v3/"></script>
+
+  <!-- ✅ Functional checkout script -->
   <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    console.log("✅ Page loaded, initializing Stripe...");
 
-    const stripe = Stripe("{{ publishable_key }}"); // Pasa tu clave pública de Stripe desde Flask
+    if (typeof Stripe === "undefined") {
+      console.error("❌ Stripe not loaded! Network or CSP issue.");
+      alert("Stripe script failed to load. Try refreshing.");
+      return;
+    }
 
-    document.getElementById("checkout-button").addEventListener("click", () => {
-      fetch("/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      })
-      .then(res => res.json())
-      .then(data => {
-        if(data.id) {
-          return stripe.redirectToCheckout({ sessionId: data.id });
+    const stripe = Stripe("{{ publishable_key }}");
+    console.log("Stripe initialized with key:", "{{ publishable_key }}");
+
+    document.getElementById("checkout-button").addEventListener("click", async () => {
+      try {
+        console.log("🟠 Creating checkout session...");
+        const response = await fetch("/create-checkout-session", { method: "POST" });
+        const data = await response.json();
+        console.log("Stripe session response:", data);
+
+        if (data.id) {
+          const result = await stripe.redirectToCheckout({ sessionId: data.id });
+          if (result.error) alert(result.error.message);
         } else {
-          alert("Error creating checkout session.");
+          alert("Error creating checkout session. Check console for details.");
         }
-      });
+      } catch (err) {
+        console.error("Checkout error:", err);
+        alert("Error communicating with server.");
+      }
     });
+  });
   </script>
 </body>
 </html>
-
-
-
-
