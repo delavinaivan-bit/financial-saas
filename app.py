@@ -151,15 +151,28 @@ def dashboard():
 # ---------- EMAIL LISTS ----------
 @app.route('/email_lists', methods=['GET', 'POST'])
 @login_required
+# ---------- EMAIL LISTS ----------
+@app.route('/email_lists', methods=['GET'])
+@login_required
 def email_lists():
-    if request.method == 'POST':
-        nombre = request.form.get('nombre')
-        if nombre:
-            nueva_lista = EmailList(nombre=nombre, user_id=current_user.id)
-            db.session.add(nueva_lista)
-            db.session.commit()
     listas = EmailList.query.filter_by(user_id=current_user.id).all()
     return render_template('email_lists.html', listas=listas)
+
+@app.route('/email_lists', methods=['POST'])
+@login_required
+def create_email_list():
+    data = request.get_json() or {}
+    nombre = data.get('nombre', '').strip()
+
+    if not nombre:
+        return jsonify({'ok': False, 'error': 'List name required'}), 400
+
+    nueva_lista = EmailList(nombre=nombre, user_id=current_user.id)
+    db.session.add(nueva_lista)
+    db.session.commit()
+
+    return jsonify({'ok': True, 'id': nueva_lista.id, 'nombre': nueva_lista.nombre})
+
 
 @app.route('/add_contact/<int:lista_id>', methods=['POST'])
 @login_required
