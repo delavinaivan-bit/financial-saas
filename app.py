@@ -149,6 +149,7 @@ def dashboard():
     return render_template('dashboard.html')
 
 
+
 # ---------- EMAIL LISTS ----------
 @app.route('/email_lists', methods=['GET'])
 @login_required
@@ -156,25 +157,34 @@ def email_lists():
     listas = EmailList.query.filter_by(user_id=current_user.id).all()
     return render_template('email_lists.html', listas=listas)
 
+
 @app.route('/email_lists', methods=['POST'])
 @login_required
 def create_email_list():
     # ✅ Acepta tanto JSON como form-data
-    if request.is_json:
-        data = request.get_json() or {}
-        nombre = (data.get('nombre') or '').strip()
-    else:
-        nombre = (request.form.get('nombre') or '').strip()
+    try:
+        if request.is_json:
+            data = request.get_json() or {}
+            nombre = (data.get('nombre') or '').strip()
+        else:
+            nombre = (request.form.get('nombre') or '').strip()
 
-    if not nombre:
-        # 🔥 Devuelve JSON aunque haya error
-        return jsonify({'ok': False, 'error': 'List name required'}), 400
+        if not nombre:
+            # 🔥 Devuelve JSON aunque haya error
+            return jsonify({'ok': False, 'error': 'List name required'}), 400
 
-    nueva_lista = EmailList(nombre=nombre, user_id=current_user.id)
-    db.session.add(nueva_lista)
-    db.session.commit()
+        nueva_lista = EmailList(nombre=nombre, user_id=current_user.id)
+        db.session.add(nueva_lista)
+        db.session.commit()
 
-    return jsonify({'ok': True, 'id': nueva_lista.id, 'nombre': nueva_lista.nombre})
+        return jsonify({'ok': True, 'id': nueva_lista.id, 'nombre': nueva_lista.nombre})
+    
+    except Exception as e:
+        # ⚠️ Si hay un error interno, devolvemos JSON también
+        import traceback
+        print("❌ Error en create_email_list:", traceback.format_exc())
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
 
 
 @app.route('/add_contact/<int:lista_id>', methods=['POST'])
