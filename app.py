@@ -159,10 +159,15 @@ def email_lists():
 @app.route('/email_lists', methods=['POST'])
 @login_required
 def create_email_list():
-    data = request.get_json() or {}
-    nombre = data.get('nombre', '').strip()
+    # ✅ Acepta tanto JSON como form-data
+    if request.is_json:
+        data = request.get_json() or {}
+        nombre = (data.get('nombre') or '').strip()
+    else:
+        nombre = (request.form.get('nombre') or '').strip()
 
     if not nombre:
+        # 🔥 Devuelve JSON aunque haya error
         return jsonify({'ok': False, 'error': 'List name required'}), 400
 
     nueva_lista = EmailList(nombre=nombre, user_id=current_user.id)
