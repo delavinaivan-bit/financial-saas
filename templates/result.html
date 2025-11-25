@@ -128,7 +128,7 @@
       if (!nombre) { flashStatus('List name required', false); return; }
 
       try {
-        const res = await fetch('/create_list_json', {
+        const res = await fetch('/email_lists', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ nombre })
@@ -138,10 +138,10 @@
 
         // Añadir la nueva lista al <select> y seleccionarla
         const opt = document.createElement('option');
-        opt.value = data.lista.id;
-        opt.textContent = data.lista.nombre;
+        opt.value = data.id;
+        opt.textContent = data.nombre;
         selectList.appendChild(opt);
-        selectList.value = String(data.lista.id);
+        selectList.value = String(data.id);
 
         newListName.value = '';
         flashStatus('List created ✔ and selected');
@@ -159,10 +159,10 @@
       if (!email) { flashStatus('Email required', false); return; }
 
       try {
-        const res = await fetch('/add_contact_json', {
+        const res = await fetch(`/add_contact/${listaId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ lista_id: Number(listaId), email })
+          body: JSON.stringify({ email })
         });
         const data = await res.json();
         if (!data.ok) throw new Error(data.error || 'Error adding email');
